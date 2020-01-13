@@ -225,18 +225,18 @@ int extraitRequete(char *requete, hashMapStringString* mapParameters){
 				//tant qu'on a pas d'espace (marquant la fin de la requete)
 				if(requete[i+cpt] == '='){
 					//si on a un egal (marquant la valeur du parametre)
-                    			key[iString] = '\0';
+                    key[iString] = '\0';
 					iString = 0;
 					cpt++;
 
 					while(requete[i+cpt] != '&' && requete[i+cpt] != ' '){
 						//tant qu'on a pas d'et_commerciale (marquant un nouveau parametre)
 						value[iString] = requete[i+cpt];
-                        			iString++;
-                        			cpt++;
+                    	iString++;
+                        cpt++;
 					}
 
-                    			value[iString] = '\0';
+                    value[iString] = '\0';
 					iString = 0;
 
 					printf("Extrait dans HashMap : key = %s // value = %s\n", key, value);
@@ -391,26 +391,26 @@ int modifieUtilisateur(hashMapStringString mapParameters){
     	FILE* temp = fopen("temp.csv", "w"); //si on veut modifier une ligne au milieu du fichier, on réécrit le fichier entier dans un autre fichier temporaire
 	char c;
 
-    	while((c = getc(csv)) != EOF){
-		cpt++;
-		if (cpt == pos+1)
-			copie = 0;
+	while((c = getc(csv)) != EOF){
+	cpt++;
+	if (cpt == pos+1)
+		copie = 0;
 
-		if(copie == 1){
-			putc(c, temp);
-		}else if(copie == 0){
-			fprintf(temp, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", nom, prenom, mail, adressePostale, numTel, remarque, age, login, password, admin);
-			copie = -1;
-		}
+	if(copie == 1){
+		putc(c, temp);
+	}else if(copie == 0){
+		fprintf(temp, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", nom, prenom, mail, adressePostale, numTel, remarque, age, login, password, admin);
+		copie = -1;
+	}
 
-		if(c == '\n')
-			copie = 1;
-    	}
-    	//fermeture des fichiers ouverts
-    	fclose(csv);
-    	fclose(temp);
-    	remove("mapUsers.csv");
-    	rename("temp.csv", "mapUsers.csv");
+	if(c == '\n')
+		copie = 1;
+	}
+	//fermeture des fichiers ouverts
+	fclose(csv);
+	fclose(temp);
+	remove("mapUsers.csv");
+	rename("temp.csv", "mapUsers.csv");
 
 	printf("     Sortie de : modifieUtilisateur\n");
 	return 1;
@@ -437,22 +437,22 @@ int supprimeUtilisateur(hashMapStringString mapParameters){
     	FILE* temp = fopen("temp.csv", "w");
 	char c;
 
-    	while((c = getc(csv)) != EOF){
-		cpt++;
-		if (cpt == pos+1)
-			copie = 0;
+	while((c = getc(csv)) != EOF){
+	cpt++;
+	if (cpt == pos+1)
+		copie = 0;
 
-		if(copie == 1){
-			putc(c, temp);
-		}
+	if(copie == 1){
+		putc(c, temp);
+	}
 
-		if(c == '\n')
-			copie = 1;
-    	}
-    	fclose(csv);
-    	fclose(temp);
-    	remove("mapUsers.csv");
-    	rename("temp.csv", "mapUsers.csv");
+	if(c == '\n')
+		copie = 1;
+	}
+	fclose(csv);
+	fclose(temp);
+	remove("mapUsers.csv");
+	rename("temp.csv", "mapUsers.csv");
 
 	printf("     Sortie de : supprimeUtilisateur\n");
 	return 1;
