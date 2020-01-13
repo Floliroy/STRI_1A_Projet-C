@@ -113,6 +113,7 @@ char* getFromHashMapUserString(hashMapUserString* map, utilisateur* key){
 			return map->elem[i].value;
 		}
 	}
+	return NULL;
 }
 
 //cette fonction permet de parcourir un string en d'en extraire en sous string entre l'indice de départ et un delimiteur
@@ -163,7 +164,7 @@ int getUserLineWithNomPrenom(char* nomParam, char* prenomParam){
 	
 	//ouverture du fichier en lecture
 	FILE* csv = fopen("mapUsers.csv", "r");
-	char nom[BUFSIZ], prenom[BUFSIZ], mail[BUFSIZ], adressePostale[BUFSIZ], numTel[BUFSIZ], remarque[BUFSIZ], age[BUFSIZ], admin[BUFSIZ];
+	char nom[BUFSIZ], prenom[BUFSIZ];
 	char ligne[BUFSIZ];
 	int retour = 0;
 	while(fgets(ligne, BUFSIZ, csv) != NULL){
