@@ -12,6 +12,7 @@ Taper `http://localhost:13214/` dans votre barre de recherche, puis vos paramèt
 Le paramètre de base est 'ACTION' qui indiquera au serveur ce que vous souhaitez faire.
 
 Pour chaque action certains autres paramètres sont nécessaire.
+
 1. `ACTION=1` -> Connexion au serveur.
 Il faudra en plus le login et le password de l'utilisateur qui souhaite se connecter.
 exemple : `http://localhost:13214/ACTION=1&login=floliroy&password=stri`
