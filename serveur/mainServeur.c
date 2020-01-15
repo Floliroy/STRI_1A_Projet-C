@@ -4,7 +4,7 @@
 #include "serveur.h"
 #include "../util/util.h"
 
-hashMapUserString mapUtilisateurs; //creation de mapUtilisateur de type hashMapUserString en tant que variable globale
+hashMapUserString mapUtilisateurs; //Création de la map contennant tous les utilisateurs en variable globale
 
 /**
  * Permet d'ajouter un nouvel utilisateur a mapUtilisateurs et au fichier csv (pour la sauvegarde)
@@ -386,19 +386,26 @@ int main() {
 	int logged = 0;
 	int retour;
 
+	//On initialise notre map d'utilisateurs et le serveur
 	initMapUtilisateurs();
 	Initialisation();
 
 	while(1) {
+		//On attends un message du client
 		AttenteClient();
 		message = Reception();
+		//On 'reset' notre map des paramètres de la requête
 		hashMapStringString mapParameters = {.size = 0};
 
+		//Si on a une requete GET et qu'on peut en récupérer des paramètres
 		if(message != NULL && isRequeteGet(message) == 1 && extraitRequete(message, &mapParameters) == 1) {
 			printf(YEL "J'ai recu: %s\n" RESET, message);
 
+			//Si l'utilisateur est connecté
 			if(logged == 1){
+				//On pointe alors sur nnotre aiguillage
 				retour = aiguillageServeur(mapParameters, userLogged);
+				//Un retour à 0 indique un souhait de déconnexion
 				if(retour == 0){
 					printf(RED "Deconnexion du login: \"%s\".\n" RESET, userLogged->login);
 					logged = 0;
@@ -406,11 +413,15 @@ int main() {
 				}
 			}else{
 				printf("Attente de connexion...\n");
+
 				char* login = getFromHashMapStringString(&mapParameters, "login");
 				char* password = getFromHashMapStringString(&mapParameters, "password");
 				char* action = getFromHashMapStringString(&mapParameters, "ACTION");
+
+				//Si on a une demande de connexion et que le login et mot de passe sont valides
 				if(login != NULL && password != NULL && action != NULL &&
 				strcmp(action,"1") == 0 && isMotDePasseValide(mapUtilisateurs, login, password) == 1){
+					//On crée alors notre utilisateur connecté
 					userLogged = malloc(sizeof(utilisateur));
 					userLogged = getUserWithLogin(&mapUtilisateurs, login);
 					logged = 1;
@@ -418,6 +429,7 @@ int main() {
 				}
 			}		
 
+			//On libère l'espace mémoire alloué au message recu
 			free(message);
 		}else{
 			TerminaisonClient();
