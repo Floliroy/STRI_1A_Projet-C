@@ -400,7 +400,7 @@ int main() {
 
 		//Si on a une requete GET et qu'on peut en récupérer des paramètres
 		if(message != NULL && isRequeteGet(message) == 1 && extraitRequete(message, &mapParameters) == 1) {
-			printf(YEL "J'ai recu: %s\n\n" RESET, message);
+			printf(YEL "\nJ'ai recu: %s\n" RESET, message);
 
 			//Si l'utilisateur est connecté
 			if(logged == 1){
