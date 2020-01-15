@@ -19,6 +19,7 @@
 #include <errno.h>
 
 #include "serveur.h"
+#include "../util/util.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -44,6 +45,70 @@ char tamponClient[LONGUEUR_TAMPON];
 int debutTampon;
 int finTampon;
 
+//recup√®re les param√®tres pr√©sent dans notre requ√™te GET
+int extraitRequete(char *requete, hashMapStringString* mapParameters){
+	printf("     Entr√©e dans : extraitRequete\n");
+
+	int i, cpt, iString, fin;
+	int taille = strlen(requete);
+	char key[BUFSIZ], value[BUFSIZ];
+
+	for(i=0 ; i<taille-1 && requete[i+1] != '\n' ; i++){
+		if(requete[i] == '/'){
+			cpt = 1;
+            fin = 0;
+			iString = 0;
+            
+			while(fin == 0){
+				//tant qu'on a pas d'espace (marquant la fin de la requete)
+				if(requete[i+cpt] == '='){
+					//si on a un egal (marquant la valeur du parametre)
+                    key[iString] = '\0';
+					iString = 0;
+					cpt++;
+
+					while(requete[i+cpt] != '&' && requete[i+cpt] != ' '){
+						//tant qu'on a pas d'et_commerciale (marquant un nouveau parametre)
+						value[iString] = requete[i+cpt];
+                    	iString++;
+                        cpt++;
+					}
+
+                    value[iString] = '\0';
+					iString = 0;
+
+					//printf("Extrait dans HashMap : key = %s // value = %s\n", key, value);
+
+					addToHashMapStringString(mapParameters, key, value);
+				}else{
+					key[iString] = requete[i+cpt];
+					iString++;
+				}
+                
+                if(requete[i+cpt] == ' '){	
+                    fin = 1;
+                }else{
+                    cpt++;
+                }
+			}
+			if(fin == 1){
+				printf("     Sortie de : extraitRequete\n");
+				return 1;
+			}
+		}
+	}
+
+	printf("     Sortie de : extraitRequete\n");
+    return 0;
+}
+
+//est ce que la requete est une requete GET
+int isRequeteGet(char *requete){
+	if(requete[0] == 'G' && requete[1] == 'E' && requete[2] == 'T'){
+		return 1;
+	}
+	return 0;
+}
 
 /* Initialisation.
  * Creation du serveur.
@@ -53,8 +118,8 @@ int Initialisation() {
 }
 
 /* Initialisation.
- * Creation du serveur en précisant le service ou numéro de port.
- * renvoie 1 si ça c'est bien passé 0 sinon
+ * Creation du serveur en prÔøΩcisant le service ou numÔøΩro de port.
+ * renvoie 1 si ÔøΩa c'est bien passÔøΩ 0 sinon
  */
 int InitialisationAvecService(char *service) {
 	int n;
@@ -128,7 +193,7 @@ int AttenteClient() {
 		return 0;
 	}
 	if(getnameinfo(clientAddr, longeurAdr, machine, NI_MAXHOST, NULL, 0, 0) == 0) {
-		printf("Client sur la machine d'adresse %s connecte.\n", machine);
+		//printf("Client sur la machine d'adresse %s connecte.\n", machine);
 	} else {
 		printf("Client anonyme connecte.\n");
 	}
@@ -174,7 +239,7 @@ char *Reception() {
 				perror("Reception, erreur de recv.");
 				return NULL;
 			} else if(retour == 0) {
-				fprintf(stderr, "Reception, le client a ferme la connexion.\n");
+				//fprintf(stderr, "Reception, le client a ferme la connexion.\n");
 				return NULL;
 			} else {
 				/*
@@ -240,7 +305,7 @@ int ReceptionBinaire(char *donnees, size_t tailleMax) {
 	}
 }
 
-/* Envoie des données au client en précisant leur taille.
+/* Envoie des donnÔøΩes au client en prÔøΩcisant leur taille.
  */
 int EmissionBinaire(char *donnees, size_t taille) {
 	int retour = 0;

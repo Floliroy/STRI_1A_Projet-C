@@ -2,264 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "serveur.h"
-
-//constantes permettant d'associer les variables à des valeurs
-#define ACTION_CONNEXION 1
-#define ACTION_DECONNEXION 2
-#define ACTION_AJOUTE_UTILISATEUR 3
-#define ACTION_MODIFIE_UTILISATEUR 4
-#define ACTION_SUPPRIME_UTILISATEUR 5
-
-//structure utilisateur
-typedef struct {
-	char* nom; // champ obligatoire 
-	char* prenom; //champ obligatoire
-	char* mail; //champ obligatoire
-	char* adressePostale; 
-	char* numTel; 
-	char* remarque;
-	int age;
-	char* login; //obligatoire
-	char* password; //obligatoire
-}utilisateur;
-
-//hashMap entre deux strings, structure de donnée entre deux strings permettant l'association clé-valeur
-typedef struct{
-	char* key;
-	char* value;
-}elementStringString;
-
-typedef struct{
-	int size; //nombre d'éléments de la structure 
-	elementStringString elem[BUFSIZ];
-}hashMapStringString;
-
-//fonction pour ajouter à la hash map une valeur et sa clé
-void addToHashMapStringString(hashMapStringString* map, char* key, char* value){
-	//allocation dynamique de la clé et de la valeur
-	char* newKey = malloc(strlen(key) * sizeof(char));
-	char* newValue = malloc(strlen(value) * sizeof(char));
-	
-	//strcpy copie la chaîne pointée par key dans la chaîne pointée par newKey pour que la chaine passé en parametre puisse etre modifié par la suite
-	strcpy(newKey, key);
-	strcpy(newValue, value);
-
-	map->elem[map->size].key = newKey;
-	map->elem[map->size].value = newValue;
-
-	//incrémentation de la taille de la Hash map aprés ajout de la valeur 
-	map->size = map->size + 1;
-}
-
-//fonction pour obtenir une valeur de la HashMap à partir de sa clé
-char* getFromHashMapStringString(hashMapStringString* map, char* key){
-	for(int i=0 ; i<map->size ; i++){
-		//strcmp va comparer les clés de la map avec la clé passé en paramètre
-		if(strcmp(map->elem[i].key,key) == 0){
-			return map->elem[i].value;
-		}
-	}
-	return NULL; //retourne null si on ne trouve aucune correspondance
-}
-
-//hashMap entre user et string: clé utilisateur qui permet d'avoir une valeur String 
-typedef struct{
-	utilisateur* key;
-	char* value;
-}elementUserString;
-
-typedef struct{
-	int size; //nombre d'éléments de la structure 
-	elementUserString elem[BUFSIZ];
-}hashMapUserString;
+#include "../util/util.h"
 
 hashMapUserString mapUtilisateurs; //creation de mapUtilisateur de type hashMapUserString en tant que variable globale
-
-/* ajoute un utilisateur à la HashMap des utilisateurs du serveur. 
- * Cette fonction consiste à faire des allocation dynamiques pour les différents 
- * pour que l'utilisateur passé en parametre puisse être modifié par la suite */
-void addToHashMapUserString(hashMapUserString* map, utilisateur key, char* value){
-	utilisateur* newKey = malloc(sizeof(key));
-	char* newValue = malloc(strlen(value) * sizeof(char));
-	newKey->nom = malloc(strlen(key.nom) * sizeof(char));
-	strcpy(newKey->nom,key.nom);
-	newKey->prenom = malloc(strlen(key.prenom) * sizeof(char));
-	strcpy(newKey->prenom,key.prenom);
-	newKey->mail = malloc(strlen(key.mail) * sizeof(char));
-	strcpy(newKey->mail,key.mail);
-	newKey->adressePostale = malloc(strlen(key.adressePostale) * sizeof(char));
-	strcpy(newKey->adressePostale,key.adressePostale);
-	newKey->numTel = malloc(strlen(key.numTel) * sizeof(char));
-	strcpy(newKey->numTel,key.numTel);
-	newKey->remarque = malloc(strlen(key.remarque) * sizeof(char));
-	strcpy(newKey->remarque,key.remarque);
-	newKey->age = key.age;
-	strcpy(newValue, value);
-	newKey->login = malloc(strlen(key.login) * sizeof(char));
-	strcpy(newKey->login,key.login);
-	newKey->password = malloc(strlen(key.password) * sizeof(char));
-	strcpy(newKey->password,key.password);
-
-	map->elem[map->size].key = newKey;
-	map->elem[map->size].value = newValue;
-	map->size = map->size + 1;
-	
-}
-
-//fonction pour obtenir de la HashMap la valeur du string associé à un utilisateur (pour le moment ce string correspond a si il est admin ou non) 
-char* getFromHashMapUserString(hashMapUserString* map, utilisateur* key){
-	for(int i=0 ; i<map->size ; i++){
-		if(map->elem[i].key == key){
-			return map->elem[i].value;
-		}
-	}
-	return NULL;
-}
-
-//cette fonction permet de parcourir un string en d'en extraire en sous string entre l'indice de départ et un delimiteur
-void recupereString(char ligne[BUFSIZ], char string[BUFSIZ], int* start, char delimiteur){
-	int i = 0;
-	int cpt = *start;
-	while(ligne[cpt] != delimiteur){
-		string[i] = ligne[cpt];
-		cpt++;
-		i++;
-	}
-	string[i] = '\0';
-	cpt++;
-	*start = cpt;
-}
-
-//fonction qui cherche un utilisateur par son nom et son prenom
-utilisateur* getUserWithNomPrenom(hashMapUserString* map, char* nom, char* prenom){
-	printf("     Entrée dans : getUserWithNomPrenom\n");
-
-	for(int i=0 ; i<map->size ; i++){
-		if(strcmp(map->elem[i].key->nom,nom) == 0 && strcmp(map->elem[i].key->prenom,prenom) == 0){
-			
-			printf("     Sortie de : getUserWithNomPrenom\n");
-			return map->elem[i].key;
-		}
-	}
-	return NULL;
-}
-
-//fonction qui cherche un utilisateur par son login
-utilisateur* getUserWithLogin(hashMapUserString* map, char* login){
-	printf("     Entrée dans : getUserWithLogin\n");
-
-	for(int i=0 ; i<map->size ; i++){
-		if(strcmp(map->elem[i].key->login,login) == 0){
-			
-			printf("     Sortie de : getUserWithLogin\n");
-			return map->elem[i].key;
-		}
-	}
-	return NULL;
-}
-
-//retourne la position du curseur pour être au debut de la ligne de l'utilisateur recherché dans le fichier csv
-int getUserLineWithNomPrenom(char* nomParam, char* prenomParam){
-	printf("     Entrée dans : getUserLineWithNomPrenom\n");
-	
-	//ouverture du fichier en lecture
-	FILE* csv = fopen("mapUsers.csv", "r");
-	char nom[BUFSIZ], prenom[BUFSIZ];
-	char ligne[BUFSIZ];
-	int retour = 0;
-	while(fgets(ligne, BUFSIZ, csv) != NULL){
-		int cpt = 0;
-		recupereString(ligne, nom, &cpt, ',');
-		recupereString(ligne, prenom, &cpt, ',');
-		while(ligne[cpt] != '\n'){
-			cpt++;
-		}
-		if(strcmp(nom,nomParam) == 0 && strcmp(prenom,prenomParam) == 0){				
-			fclose(csv);
-			
-			printf("     Sortie de : getUserLineWithNomPrenom\n");
-			return retour;
-		}
-		//la fonction ftell permet de connaitre la position du pointeur de fichier csv
-		retour = ftell(csv);
-	}
-
-	fclose(csv);
-	return -1;
-}
-
-//fonction pour savoir si l'utilisateur est administrateur
-int isUserAdmin(utilisateur* user){
-	if(strcmp(getFromHashMapUserString(&mapUtilisateurs, user),"1") != 0){
-		return 0;
-	}else{
-		return 1;
-	}
-}
-
-/* fonction pour savoir si le mot de passe est valide. En faisant appel à la fonction getUserWithLogin
- * strcmp compare le mot de passe passé en paramètre avec le mot de passe de l'utilisateur. */
-int isMotDePasseValide(char* login, char* password){
-	utilisateur* user = getUserWithLogin(&mapUtilisateurs, login);
-	if(strcmp(password, user->password) == 0){
-		return 1;
-	}else{
-		return 0;
-	}
-}
-
-//recupère les paramètres présent dans notre requête GET
-int extraitRequete(char *requete, hashMapStringString* mapParameters){
-	printf("     Entrée dans : extraitRequete\n");
-
-	int i, cpt, iString, fin;
-	int taille = strlen(requete);
-	char key[BUFSIZ], value[BUFSIZ];
-
-	for(i=0 ; i<taille-1 && requete[i+1] != '\n' ; i++){
-		if(requete[i] == '/'){
-			cpt = 1;
-            fin = 0;
-			iString = 0;
-            
-			while(fin == 0){
-				//tant qu'on a pas d'espace (marquant la fin de la requete)
-				if(requete[i+cpt] == '='){
-					//si on a un egal (marquant la valeur du parametre)
-                    key[iString] = '\0';
-					iString = 0;
-					cpt++;
-
-					while(requete[i+cpt] != '&' && requete[i+cpt] != ' '){
-						//tant qu'on a pas d'et_commerciale (marquant un nouveau parametre)
-						value[iString] = requete[i+cpt];
-                    	iString++;
-                        cpt++;
-					}
-
-                    value[iString] = '\0';
-					iString = 0;
-
-					printf("Extrait dans HashMap : key = %s // value = %s\n", key, value);
-
-					addToHashMapStringString(mapParameters, key, value);
-				}else{
-					key[iString] = requete[i+cpt];
-					iString++;
-				}
-                
-                if(requete[i+cpt] == ' '){	
-                    fin = 1;
-                }else{
-                    cpt++;
-                }
-			}
-            return 1;
-		}
-	}
-
-    return 0;
-}
 
 //ajout d'un utilisateur en utilisant les informations de la requête 
 int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
@@ -295,7 +40,8 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 		printf("Erreur, cet utilisateur existe deja.\n");
 		return 0;
 	}
-	//si il n'y a pas d'adresse postale, mettre un espace à la place
+	
+	//si il n'y a pas le champ recherché, mettre un espace à la place
 	if((adressePostale = getFromHashMapStringString(&mapParameters, "adressePostale")) == NULL){
 		adressePostale = " ";
 	}
@@ -326,6 +72,7 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	fprintf(csv, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", nom, prenom, mail, adressePostale, numTel, remarque, age, login, password, admin);
 	fclose(csv); //fermeture du fichier 
 
+	printf(YEL "Utilisateur %s %s ajouté.\n" RESET, nom, prenom);
 	printf("     Sortie de : ajouteUtilisateur\n");
 	return 1;
 }
@@ -413,6 +160,7 @@ int modifieUtilisateur(hashMapStringString mapParameters){
 	remove("mapUsers.csv");
 	rename("temp.csv", "mapUsers.csv");
 
+	printf(YEL "Utilisateur %s %s modifié.\n" RESET, nom, prenom);
 	printf("     Sortie de : modifieUtilisateur\n");
 	return 1;
 }
@@ -429,7 +177,15 @@ int supprimeUtilisateur(hashMapStringString mapParameters){
 	}
 	
 	utilisateur* user = getUserWithNomPrenom(&mapUtilisateurs, nom, prenom);
-	user = NULL;
+	user->nom = NULL;
+	user->prenom = NULL;
+	user->mail = NULL;
+	user->adressePostale = NULL;
+	user->numTel = NULL;
+	user->remarque = NULL;
+	user->age = -1;
+	user->login = NULL;
+	user->password = NULL;
 
 	int pos = getUserLineWithNomPrenom(nom, prenom);
 	int cpt = 0, copie = 1;
@@ -455,6 +211,7 @@ int supprimeUtilisateur(hashMapStringString mapParameters){
 	remove("mapUsers.csv");
 	rename("temp.csv", "mapUsers.csv");
 
+	printf(YEL "Utilisateur %s %s supprimé.\n" RESET, nom, prenom);
 	printf("     Sortie de : supprimeUtilisateur\n");
 	return 1;
 }
@@ -464,26 +221,27 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 	printf("     Entrée dans : aiguillageServeur\n");
 
 	char* action;
-	printf("ACTION = %s\n", getFromHashMapStringString(&mapParameters, "ACTION"));
+	printf(BLU "ACTION = %s\n" RESET, getFromHashMapStringString(&mapParameters, "ACTION"));
 	if((action = getFromHashMapStringString(&mapParameters, "ACTION")) != NULL){
 		int actionCod = atoi(action);
 		//choix de l'action
 		switch (actionCod){
 		case ACTION_DECONNEXION:
+			printf("     Sortie de : aiguillageServeur\n");
 			return 0;
 			break;
 		case ACTION_AJOUTE_UTILISATEUR:
-			if(isUserAdmin(userLogged) == 1){
+			if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
 				ajouteUtilisateur(mapParameters, "0");
 			}
 			break;
 		case ACTION_MODIFIE_UTILISATEUR:
-			if(isUserAdmin(userLogged) == 1){
+			if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
 				modifieUtilisateur(mapParameters);
 			}
 			break;
 		case ACTION_SUPPRIME_UTILISATEUR:
-			if(isUserAdmin(userLogged) == 1){
+			if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
 				supprimeUtilisateur(mapParameters);
 			}
 			break;
@@ -494,17 +252,9 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 	return 1;
 }
 
-//est ce que la requete est une requete GET
-int isRequeteGet(char *requete){
-	if(requete[0] == 'G' && requete[1] == 'E' && requete[2] == 'T'){
-		return 1;
-	}
-	return 0;
-}
-
 //fonction qui initialise la map des utilisateurs en lisant ou créant un fichier csv
-void initHashMapUserString(){
-	printf("     Entrée dans : initHashMapUserString\n");
+void initMapUtilisateurs(){
+	printf("     Entrée dans : initMapUtilisateurs\n");
 
 	mapUtilisateurs.size = 0;
 
@@ -540,7 +290,7 @@ void initHashMapUserString(){
 
 			cptUser++;
 		}
-		printf("%d utilisateur récupéré.\n", cptUser);
+		printf(YEL "%d utilisateur récupéré.\n" RESET, cptUser);
 		fclose(csv);
 	}else{
 		hashMapStringString mapParameters = {.size = 0};
@@ -557,7 +307,7 @@ void initHashMapUserString(){
 		ajouteUtilisateur(mapParameters, "1");
 	}
 
-	printf("     Sortie de : initHashMapUserString\n");
+	printf("     Sortie de : initMapUtilisateurs\n");
 }
 
 //serveur sur localhost:13214
@@ -567,7 +317,7 @@ int main() {
 	int logged = 0;
 	int retour;
 
-	initHashMapUserString();
+	initMapUtilisateurs();
 	Initialisation();
 
 	while(1) {
@@ -576,12 +326,12 @@ int main() {
 		hashMapStringString mapParameters = {.size = 0};
 
 		if(message != NULL && isRequeteGet(message) == 1 && extraitRequete(message, &mapParameters) == 1) {
-			printf("J'ai recu: %s\n", message);
+			printf(YEL "J'ai recu: %s\n" RESET, message);
 
 			if(logged == 1){
 				retour = aiguillageServeur(mapParameters, userLogged);
 				if(retour == 0){
-					printf("Deconnexion du login: \"%s\".\n", userLogged->login);
+					printf(RED "Deconnexion du login: \"%s\".\n" RESET, userLogged->login);
 					logged = 0;
 					free(userLogged);
 				}
@@ -591,20 +341,20 @@ int main() {
 				char* password = getFromHashMapStringString(&mapParameters, "password");
 				char* action = getFromHashMapStringString(&mapParameters, "ACTION");
 				if(login != NULL && password != NULL && action != NULL &&
-				strcmp(action,"1") == 0 && isMotDePasseValide(login, password) == 1){
+				strcmp(action,"1") == 0 && isMotDePasseValide(mapUtilisateurs, login, password) == 1){
 					userLogged = malloc(sizeof(utilisateur));
 					userLogged = getUserWithLogin(&mapUtilisateurs, login);
 					logged = 1;
-					printf("Connexion réussie avec le login: \"%s\".\n", login);
+					printf(RED "Connexion réussie avec le login: \"%s\".\n" RESET, login);
 				}
 			}		
 
 			free(message);
+		}else{
+			TerminaisonClient();
+			//logged = 0;
+			//free(userLogged);
 		}
-
-		TerminaisonClient();
-		//logged = 0;
-		//free(userLogged);
 	}
 
 	return 0;
