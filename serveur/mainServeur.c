@@ -3,6 +3,7 @@
 #include <string.h>
 #include "serveur.h"
 #include "../util/util.h"
+#include "../util/user.h"
 
 hashMapUserString mapUtilisateurs; //Création de la map contennant tous les utilisateurs en variable globale
 
@@ -73,10 +74,10 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	FILE* csv;
 	if(strcmp(admin,"1") == 0){
 		//Création du fichier csv en écriture seule (si on crée un admin le fichier n'existe pas encore)
-		csv = fopen("mapUsers.csv", "w");
+		csv = fopen("util/mapUsers.csv", "w");
 	}else{
 		//Ouverture du fichier en lecture et ecriture sans écraser le fichier
-		csv = fopen("mapUsers.csv", "r+");
+		csv = fopen("util/mapUsers.csv", "r+");
 	}
 
 	//On se place a la fin du fichier
@@ -158,8 +159,8 @@ int modifieUtilisateur(hashMapStringString mapParameters){
 	int cpt = 0, copie = 1;
 
 	//On crée un fichier temporaire pour copier tout le fichier actuel sauf la ligne de l'utilisateur a modifier
-	FILE* csv = fopen("mapUsers.csv", "r");
-    FILE* temp = fopen("temp.csv", "w");
+	FILE* csv = fopen("util/mapUsers.csv", "r");
+    FILE* temp = fopen("util/temp.csv", "w");
 	char c;
 
 	while((c = getc(csv)) != EOF){
@@ -185,9 +186,9 @@ int modifieUtilisateur(hashMapStringString mapParameters){
 	fclose(csv);
 	fclose(temp);
 	//On supprime notre précédent fichier
-	remove("mapUsers.csv");
+	remove("util/mapUsers.csv");
 	//On renomme notre fichier temporaire
-	rename("temp.csv", "mapUsers.csv");
+	rename("util/temp.csv", "util/mapUsers.csv");
 
 	printf(YEL "Utilisateur %s %s modifié.\n" RESET, nom, prenom);
 	printf("     Sortie de : modifieUtilisateur\n");
@@ -228,8 +229,8 @@ int supprimeUtilisateur(hashMapStringString mapParameters){
 	int cpt = 0, copie = 1;
 
 	//On crée un fichier temporaire pour copier tout le fichier actuel sauf la ligne de l'utilisateur a supprimer
-	FILE* csv = fopen("mapUsers.csv", "r");
-    FILE* temp = fopen("temp.csv", "w");
+	FILE* csv = fopen("util/mapUsers.csv", "r");
+    FILE* temp = fopen("util/temp.csv", "w");
 	char c;
 
 	//Tant qu'on est pas a la fin du fichier
@@ -251,9 +252,9 @@ int supprimeUtilisateur(hashMapStringString mapParameters){
 	fclose(csv);
 	fclose(temp);
 	//On supprime notre précédent fichier
-	remove("mapUsers.csv");
+	remove("util/mapUsers.csv");
 	//On renomme notre fichier temporaire
-	rename("temp.csv", "mapUsers.csv");
+	rename("util/temp.csv", "util/mapUsers.csv");
 
 	printf(YEL "Utilisateur %s %s supprimé.\n" RESET, nom, prenom);
 	printf("     Sortie de : supprimeUtilisateur\n");
@@ -318,7 +319,7 @@ void initMapUtilisateurs(){
 
 	FILE* csv;
 	//Si on peut ouvrir le fichier c'est qu'il existe, on le lire donc
-	if((csv = fopen("mapUsers.csv", "r"))){	
+	if((csv = fopen("util/mapUsers.csv", "r"))){	
 		char nom[BUFSIZ], prenom[BUFSIZ], mail[BUFSIZ], adressePostale[BUFSIZ], numTel[BUFSIZ], remarque[BUFSIZ], age[BUFSIZ], admin[BUFSIZ], login[BUFSIZ], password[BUFSIZ];
 		char ligne[BUFSIZ];
 		int cptUser = 0;
@@ -399,7 +400,7 @@ int main() {
 
 		//Si on a une requete GET et qu'on peut en récupérer des paramètres
 		if(message != NULL && isRequeteGet(message) == 1 && extraitRequete(message, &mapParameters) == 1) {
-			printf(YEL "J'ai recu: %s\n" RESET, message);
+			printf(YEL "J'ai recu: %s\n\n" RESET, message);
 
 			//Si l'utilisateur est connecté
 			if(logged == 1){

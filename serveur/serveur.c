@@ -20,6 +20,7 @@
 
 #include "serveur.h"
 #include "../util/util.h"
+#include "../util/user.h"
 
 #define TRUE 1
 #define FALSE 0

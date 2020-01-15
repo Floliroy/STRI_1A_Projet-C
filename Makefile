@@ -1,5 +1,5 @@
-mainServeur: mainServeur.o serveur.o util.o
-	gcc -o mainServeur mainServeur.o serveur.o util.o; rm -f *.o core
+mainServeur: mainServeur.o serveur.o util.o user.o
+	gcc -o mainServeur mainServeur.o serveur.o util.o user.o; rm -f *.o core
 
 mainServeur.o: serveur/mainServeur.c
 	gcc -o mainServeur.o -c serveur/mainServeur.c -Wall -O
@@ -9,6 +9,9 @@ serveur.o: serveur/serveur.c
 
 util.o: util/util.c
 	gcc -o util.o -c util/util.c -Wall -O
+
+user.o: util/user.c
+	gcc -o user.o -c util/user.c -Wall -O
 
 clean:
 	rm -f *.o core
