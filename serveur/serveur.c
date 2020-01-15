@@ -45,7 +45,6 @@ char tamponClient[LONGUEUR_TAMPON];
 int debutTampon;
 int finTampon;
 
-//recupère les paramètres présent dans notre requête GET
 int extraitRequete(char *requete, hashMapStringString* mapParameters){
 	printf("     Entrée dans : extraitRequete\n");
 
@@ -53,6 +52,7 @@ int extraitRequete(char *requete, hashMapStringString* mapParameters){
 	int taille = strlen(requete);
 	char key[BUFSIZ], value[BUFSIZ];
 
+	//on parcout toute la requete tant qu'on a pas de retour a la ligne
 	for(i=0 ; i<taille-1 && requete[i+1] != '\n' ; i++){
 		if(requete[i] == '/'){
 			cpt = 1;
@@ -60,31 +60,32 @@ int extraitRequete(char *requete, hashMapStringString* mapParameters){
 			iString = 0;
             
 			while(fin == 0){
-				//tant qu'on a pas d'espace (marquant la fin de la requete)
+				//L'egal marque la fin de la clé du parametre et le début de sa valeur
 				if(requete[i+cpt] == '='){
-					//si on a un egal (marquant la valeur du parametre)
+					//on ferme notre string de clé
                     key[iString] = '\0';
 					iString = 0;
 					cpt++;
 
+					//L'& marque le début d'un nouveau paramètre et l'espace la fin des parametres
 					while(requete[i+cpt] != '&' && requete[i+cpt] != ' '){
-						//tant qu'on a pas d'et_commerciale (marquant un nouveau parametre)
 						value[iString] = requete[i+cpt];
                     	iString++;
                         cpt++;
 					}
 
+					//On ferme notre string de valeur
                     value[iString] = '\0';
 					iString = 0;
 
 					//printf("Extrait dans HashMap : key = %s // value = %s\n", key, value);
-
 					addToHashMapStringString(mapParameters, key, value);
 				}else{
 					key[iString] = requete[i+cpt];
 					iString++;
 				}
                 
+				//L'espace marque la fin de paramètres on peut terminer la fonction
                 if(requete[i+cpt] == ' '){	
                     fin = 1;
                 }else{
@@ -102,8 +103,8 @@ int extraitRequete(char *requete, hashMapStringString* mapParameters){
     return 0;
 }
 
-//est ce que la requete est une requete GET
 int isRequeteGet(char *requete){
+	//On vérifie les trois premiers caracteres de la requete
 	if(requete[0] == 'G' && requete[1] == 'E' && requete[2] == 'T'){
 		return 1;
 	}

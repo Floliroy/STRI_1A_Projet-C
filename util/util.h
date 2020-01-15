@@ -1,14 +1,14 @@
 #ifndef __UTIL_H__
 #define __UTIL_H__
 
-//constantes permettant d'associer les variables à des valeurs
+//Constantes correspondants aux différents actions possible
 #define ACTION_CONNEXION 1
 #define ACTION_DECONNEXION 2
 #define ACTION_AJOUTE_UTILISATEUR 3
 #define ACTION_MODIFIE_UTILISATEUR 4
 #define ACTION_SUPPRIME_UTILISATEUR 5
 
-//couleurs pour les printf
+//Couleurs pour les printf en console
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
 #define YEL   "\x1B[33m"
@@ -18,6 +18,7 @@
 #define WHT   "\x1B[37m"
 #define RESET "\x1B[0m"
 
+//Structure utilisateur
 typedef struct {
 	char* nom; // champ obligatoire 
 	char* prenom; //champ obligatoire
@@ -30,59 +31,122 @@ typedef struct {
 	char* password; //obligatoire
 }utilisateur;
 
-//hashMap entre deux strings, structure de donnée entre deux strings permettant l'association clé-valeur
+//Element d'une structure HashMap<String,String>
 typedef struct{
 	char* key;
 	char* value;
 }elementStringString;
 
+//HashMap<String,String>
 typedef struct{
-	int size; //nombre d'éléments de la structure 
+	int size;
 	elementStringString elem[BUFSIZ];
 }hashMapStringString;
 
-//fonction pour ajouter à la hash map une valeur et sa clé
+/**
+ * Ajoute à la HashMap<String,String> passé en paramètre une clé et une valeur.
+ * 
+ * @param map La HashMap dans laquelle on ajoutera le nouvel élément
+ * @param key La clé pour cet élément de la HashMap
+ * @param value La valeur pour cet élément de la HashMap
+ **/
 void addToHashMapStringString(hashMapStringString* map, char* key, char* value);
 
-//fonction pour obtenir une valeur de la HashMap à partir de sa clé
+/**
+ * Recupère une valeur de la HashMap<String,String> passé en paramètre en fonction de la clé passée.
+ * 
+ * @param map La HashMap dans laquelle on cherche la valeur
+ * @param key La clé de l'élément recherché
+ * @return Renvoit la valeur correspondante à la clé, NULL si on ne trouve rien
+ **/
 char* getFromHashMapStringString(hashMapStringString* map, char* key);
 
-//hashMap entre user et string: clé utilisateur qui permet d'avoir une valeur String 
+//Element d'une structure HashMap<utilisateur,String>
 typedef struct{
 	utilisateur* key;
 	char* value;
 }elementUserString;
 
+//HashMap<utilisateur,String>
 typedef struct{
 	int size; //nombre d'éléments de la structure 
 	elementUserString elem[BUFSIZ];
 }hashMapUserString;
 
-/* ajoute un utilisateur à la HashMap des utilisateurs du serveur. 
- * Cette fonction consiste à faire des allocation dynamiques pour les différents 
- * pour que l'utilisateur passé en parametre puisse être modifié par la suite */
+/**
+ * Ajoute à la HashMap<utilisateur,String> passé en paramètre une clé et une valeur.
+ * 
+ * @param map La HashMap dans laquelle on ajoutera le nouvel élément
+ * @param key La clé pour cet élément de la HashMap
+ * @param value La valeur pour cet élément de la HashMap
+ **/
 void addToHashMapUserString(hashMapUserString* map, utilisateur key, char* value);
 
-//fonction pour obtenir de la HashMap la valeur du string associé à un utilisateur (pour le moment ce string correspond a si il est admin ou non) 
+/**
+ * Recupère une HashMap<utilisateur,String> de la HashMap passé en paramètre en fonction de la clé passée.
+ * 
+ * @param map La HashMap dans laquelle on cherche la valeur
+ * @param key La clé de l'élément recherché
+ * @return Renvoit la valeur correspondante à la clé, NULL si on ne trouve rien
+ **/
 char* getFromHashMapUserString(hashMapUserString* map, utilisateur* key);
 
-//cette fonction permet de parcourir un string en d'en extraire en sous string entre l'indice de départ et un delimiteur
+
+/**
+ * Parcours le string ligne et extrait un sous string entre l'indice de départ et un délimiteur.
+ * 
+ * @param ligne String dans lequelle on va extraire notre sous string
+ * @param string String que l'on souhaite extraire de ligne
+ * @param start Indice de départ (on le renvoit pour pouvoir revenir dans la fonction avec un autre sous string a extraire)
+ * @param delimiteur Le caractere a partir duquel on arrete d'extraire notre sous string
+ **/
 void recupereString(char ligne[BUFSIZ], char string[BUFSIZ], int* start, char delimiteur);
 
-//fonction qui cherche un utilisateur par son nom et son prenom
+/**
+ * Cherche un utilisateur par son nom et son prénom dans la HashMap<utilisateur,String> passé en paramètre.
+ * 
+ * @param map La HashMap dans laquelle on cherche l'utilisateur (dans mainServeur.c : mapUtilisateurs)
+ * @param nom Le nom de l'utilisateur recherché
+ * @param prenom Le prenom de l'utilisateur recherché
+ * @return Renvoit l'utilisateur recherché, NULL si on ne trouve rien
+ **/
 utilisateur* getUserWithNomPrenom(hashMapUserString* map, char* nom, char* prenom);
 
-//fonction qui cherche un utilisateur par son login
+/**
+ * Cherche un utilisateur par son nom et son prénom dans la HashMap<utilisateur,String> passé en paramètre.
+ * 
+ * @param map La HashMap dans laquelle on cherche l'utilisateur (dans mainServeur.c : mapUtilisateurs)
+ * @param login Le login de l'utilisateur recherché
+ * @return Renvoit l'utilisateur recherché, NULL si on ne trouve rien
+ **/
 utilisateur* getUserWithLogin(hashMapUserString* map, char* login);
 
-//retourne la position du curseur pour être au debut de la ligne de l'utilisateur recherché dans le fichier csv
+/**
+ * Cherche la position du curseur dans le fichier mapUsers.csv pour être au début de la ligne de l'utilisateur recherché.
+ * 
+ * @param nomParam Le nom de l'utilisateur recherché
+ * @param prenomParam Le prenom de l'utilisateur recherché
+ * @return Position du curseur.
+ **/
 int getUserLineWithNomPrenom(char* nomParam, char* prenomParam);
 
-//fonction pour savoir si l'utilisateur est administrateur
+/**
+ * Regarde si l'utilisateur passé en paramètre est administrateur.
+ * 
+ * @param mapUtilisateurs La HashMap<utilisateur,String> mapUtilisateurs de mainServeur.c
+ * @param user L'utilisateur dont on souhaite connaitre les droits admin
+ * @return 1 s'il est admin, 0 sinon
+ **/
 int isUserAdmin(hashMapUserString mapUtilisateurs, utilisateur* user);
 
-/* fonction pour savoir si le mot de passe est valide. En faisant appel à la fonction getUserWithLogin
- * strcmp compare le mot de passe passé en paramètre avec le mot de passe de l'utilisateur. */
+/**
+ * Vérifie si un mot de passe correspond bien au login donné.
+ * 
+ * @param mapUtilisateurs La HashMap<utilisateur,String> mapUtilisateurs de mainServeur.c
+ * @param login Le login de l'utilisateur
+ * @param password Le mote de passe que l'on souhaite tester
+ * @return 1 si le mot de passe est valide, 0 sinon
+ **/
 int isMotDePasseValide(hashMapUserString mapUtilisateurs, char* login, char* password);
 
 #endif

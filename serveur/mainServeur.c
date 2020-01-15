@@ -6,14 +6,20 @@
 
 hashMapUserString mapUtilisateurs; //creation de mapUtilisateur de type hashMapUserString en tant que variable globale
 
-//ajout d'un utilisateur en utilisant les informations de la requête 
+/**
+ * Permet d'ajouter un nouvel utilisateur a mapUtilisateurs et au fichier csv (pour la sauvegarde)
+ * 
+ * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à ajouter
+ * @param admin Savoir si l'utilisateur doit etre defini comme admin ou non
+ * @return Renvoit 1 si tout c'est bien passé, 0 sinon
+ **/
 int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	printf("     Entrée dans : ajouteUtilisateur\n");
 	char *nom, *prenom, *mail, *adressePostale, *numTel, *remarque, *age, *login, *password;
 
 	utilisateur newUtilisateur;
 	
-	//si les informations obligatoires (nom, prenom, adresse mail, login, password) sont à NULL la fonction affiche un message d'erreur
+	//Si les informations obligatoires (nom, prenom, adresse mail, login, password) sont nulles alors on ne peut pas ajouter un nouvel utilisateur
 	if((nom = getFromHashMapStringString(&mapParameters, "nom")) == NULL ||
 	(prenom = getFromHashMapStringString(&mapParameters, "prenom")) == NULL ||
 	(mail = getFromHashMapStringString(&mapParameters, "mail")) == NULL ||
@@ -28,8 +34,8 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 		newUtilisateur.login = login;
 		newUtilisateur.password = password;
 	}
-	//cérifications et affichage des messages d'erreur
-	//si la fonction trouve le nom et prenom ou le login de l'utilisateur dans la hashMap, un message est retourné pour indiquer que l'utilisateur existe déja
+
+	//Si on l'utilisateur existe deja par son nom/prenom ou par son login alors on ne le réajoute pas
 	utilisateur* user = getUserWithNomPrenom(&mapUtilisateurs, nom, prenom);
 	if(user != NULL){
 		printf("Erreur, cet utilisateur existe deja.\n");
@@ -40,8 +46,8 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 		printf("Erreur, cet utilisateur existe deja.\n");
 		return 0;
 	}
-	
-	//si il n'y a pas le champ recherché, mettre un espace à la place
+
+	//Si dans les parametres on trouve des valeurs non nulles alors on les ajoute a l'utilisateur sinon on met un espace
 	if((adressePostale = getFromHashMapStringString(&mapParameters, "adressePostale")) == NULL){
 		adressePostale = " ";
 	}
@@ -54,48 +60,63 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 		remarque = " ";
 	}
 	newUtilisateur.remarque = remarque;
-	//si il n'y a pas l'age de l'utilisateur le mettre à -1 par default
+	//Pour l'age s'il n'est pas renseigné on stockera -1
 	if((age = getFromHashMapStringString(&mapParameters, "age")) == NULL){
 		age = "-1";
 	}
 	newUtilisateur.age = atoi(age); //convertir une chaine de caractère en int
 
+	//On ajoute l'utilisateur a la map
 	addToHashMapUserString(&mapUtilisateurs, newUtilisateur, "0");
 
+	//Puis au fichier csv
 	FILE* csv;
 	if(strcmp(admin,"1") == 0){
-		csv = fopen("mapUsers.csv", "w"); //création du fichier csv en écriture seule (si on crée un admin le fichier n'existe pas)
+		//Création du fichier csv en écriture seule (si on crée un admin le fichier n'existe pas encore)
+		csv = fopen("mapUsers.csv", "w");
 	}else{
-		csv = fopen("mapUsers.csv", "r+"); //ouverture du fichier en lecture et ecriture sans écraser le fichier
+		//Ouverture du fichier en lecture et ecriture sans écraser le fichier
+		csv = fopen("mapUsers.csv", "r+");
 	}
-	fseek(csv, 0, SEEK_END); //on va a la fin du fichier
+
+	//On se place a la fin du fichier
+	fseek(csv, 0, SEEK_END);
+	//On écrit la ligne des données de l'utilisateur
 	fprintf(csv, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", nom, prenom, mail, adressePostale, numTel, remarque, age, login, password, admin);
-	fclose(csv); //fermeture du fichier 
+	//On ferme le fichier
+	fclose(csv);
 
 	printf(YEL "Utilisateur %s %s ajouté.\n" RESET, nom, prenom);
 	printf("     Sortie de : ajouteUtilisateur\n");
 	return 1;
 }
 
-//fonction permettant de modifier les informations d'un utilisateur
+/**
+ * Permet de modifier un utilisateur dans mapUtilisateurs et dans le fichier csv
+ * 
+ * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à modifier
+ * @return Renvoit 1 si tout c'est bien passé, 0 sinon
+ **/
 int modifieUtilisateur(hashMapStringString mapParameters){
 	printf("     Entrée dans : modifieUtilisateur\n");
 	char *nom, *prenom, *mail, *adressePostale, *numTel, *remarque, *age, *admin, *login, *password;
 	
-	//si le nom et prenom de l'utilisateur manquent, alors des modifications ne peuvent pas être apportées
+	//Si on n'a ni le nom ni le prenom alors on ne peut pas savoir quel utilisateur modifier
 	if((nom = getFromHashMapStringString(&mapParameters, "nom")) == NULL ||
 	(prenom = getFromHashMapStringString(&mapParameters, "prenom")) == NULL){
 		printf("Erreur, données manquantes pour modifier un utilisateur.\n");
 		return 0;
 	}
-	//vérifie que l'utilisateur existe bien avant toute modification
+
+	//On vérifie que l'utilisateur existe bien avant toute modification
 	utilisateur* user = getUserWithNomPrenom(&mapUtilisateurs ,nom, prenom);
 	if(user == NULL){
 		printf("Erreur, utilisateur introuvable.\n");
 		return 0;
 	}
 	admin = getFromHashMapUserString(&mapUtilisateurs, user);
-	//modification des informations du contact
+	
+	//Si dans les parametres on trouve des valeurs non nulles alors on les modifie pour l'utilisateur
 	if((mail = getFromHashMapStringString(&mapParameters, "mail")) != NULL){
 		user->mail = mail;
 	}else{
@@ -132,32 +153,40 @@ int modifieUtilisateur(hashMapStringString mapParameters){
 		password = user->password;
 	}
 
+	//On modifie ensuite le fichier csv avec les nouvelles données
 	int pos = getUserLineWithNomPrenom(nom, prenom);
 	int cpt = 0, copie = 1;
 
+	//On crée un fichier temporaire pour copier tout le fichier actuel sauf la ligne de l'utilisateur a modifier
 	FILE* csv = fopen("mapUsers.csv", "r");
-    	FILE* temp = fopen("temp.csv", "w"); //si on veut modifier une ligne au milieu du fichier, on réécrit le fichier entier dans un autre fichier temporaire
+    FILE* temp = fopen("temp.csv", "w");
 	char c;
 
 	while((c = getc(csv)) != EOF){
-	cpt++;
-	if (cpt == pos+1)
-		copie = 0;
+		cpt++;
 
-	if(copie == 1){
-		putc(c, temp);
-	}else if(copie == 0){
-		fprintf(temp, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", nom, prenom, mail, adressePostale, numTel, remarque, age, login, password, admin);
-		copie = -1;
-	}
+		//Si on arrive a la ligne de l'utilisateur a modifier on arrete de copier jusqu'a ...
+		if (cpt == pos+1)
+			copie = 0;
 
-	if(c == '\n')
-		copie = 1;
+		if(copie == 1){
+			putc(c, temp);
+		}else if(copie == 0){
+			//Si on ne copie pas depuis notre fichier alors on écrit a la place la nouvelle ligne pour cet utilisateur
+			fprintf(temp, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", nom, prenom, mail, adressePostale, numTel, remarque, age, login, password, admin);
+			copie = -1;
+		}
+
+		//... on arrete de copier jusqu'a avoir un retour a la ligne (marquant la fin des données de l'utilisateur)
+		if(c == '\n')
+			copie = 1;
 	}
-	//fermeture des fichiers ouverts
+	//On ferme les fichiers ouvert
 	fclose(csv);
 	fclose(temp);
+	//On supprime notre précédent fichier
 	remove("mapUsers.csv");
+	//On renomme notre fichier temporaire
 	rename("temp.csv", "mapUsers.csv");
 
 	printf(YEL "Utilisateur %s %s modifié.\n" RESET, nom, prenom);
@@ -165,17 +194,24 @@ int modifieUtilisateur(hashMapStringString mapParameters){
 	return 1;
 }
 
-//fonction permettant de supprimer un utilisateur
+/**
+ * Permet de supprimer un utilisateur de mapUtilisateurs et dans le fichier csv
+ * 
+ * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à supprimer
+ * @return Renvoit 1 si tout c'est bien passé, 0 sinon
+ **/
 int supprimeUtilisateur(hashMapStringString mapParameters){
 	printf("     Entrée dans : supprimeUtilisateur\n");
 	char *nom, *prenom;
 
+	//Si on n'a ni le nom ni le prenom alors on ne peut pas savoir quel utilisateur supprimer
 	if((nom = getFromHashMapStringString(&mapParameters, "nom")) == NULL ||
 	(prenom = getFromHashMapStringString(&mapParameters, "prenom")) == NULL){
 		printf("Erreur, données manquantes pour supprimer un utilisateur.\n");
 		return 0;
 	}
 	
+	//On supprime l'utilisateur de la structure
 	utilisateur* user = getUserWithNomPrenom(&mapUtilisateurs, nom, prenom);
 	user->nom = NULL;
 	user->prenom = NULL;
@@ -187,28 +223,36 @@ int supprimeUtilisateur(hashMapStringString mapParameters){
 	user->login = NULL;
 	user->password = NULL;
 
+	//Puis on le supprime du fichier csv
 	int pos = getUserLineWithNomPrenom(nom, prenom);
 	int cpt = 0, copie = 1;
 
+	//On crée un fichier temporaire pour copier tout le fichier actuel sauf la ligne de l'utilisateur a supprimer
 	FILE* csv = fopen("mapUsers.csv", "r");
-    	FILE* temp = fopen("temp.csv", "w");
+    FILE* temp = fopen("temp.csv", "w");
 	char c;
 
+	//Tant qu'on est pas a la fin du fichier
 	while((c = getc(csv)) != EOF){
-	cpt++;
-	if (cpt == pos+1)
-		copie = 0;
+		cpt++;
+		//Si on arrive a la ligne de l'utilisateur a supprimer on arrete de copier jusqu'a ...
+		if (cpt == pos+1)
+			copie = 0;
 
-	if(copie == 1){
-		putc(c, temp);
-	}
+		if(copie == 1){
+			putc(c, temp);
+		}
 
-	if(c == '\n')
-		copie = 1;
+		//... on arrete de copier jusqu'a avoir un retour a la ligne (marquant la fin des données de l'utilisateur)
+		if(c == '\n')
+			copie = 1;
 	}
+	//On ferme les fichiers ouvert
 	fclose(csv);
 	fclose(temp);
+	//On supprime notre précédent fichier
 	remove("mapUsers.csv");
+	//On renomme notre fichier temporaire
 	rename("temp.csv", "mapUsers.csv");
 
 	printf(YEL "Utilisateur %s %s supprimé.\n" RESET, nom, prenom);
@@ -216,31 +260,43 @@ int supprimeUtilisateur(hashMapStringString mapParameters){
 	return 1;
 }
 
-//fonction pointant vers une fonction à laquelle l'utiisateur souhaite accéder
+/**
+ * Fonction qui permet de pointer vers l'action à laquelle le client souhaite accéder
+ * 
+ * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à supprimer
+ * @param userLogged L'utilisateur connecté au serveur
+ * @return Retourne 0 si l'utilisateur souhaite se déconnecter, 1 sinon
+ **/
 int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged){
 	printf("     Entrée dans : aiguillageServeur\n");
 
 	char* action;
 	printf(BLU "ACTION = %s\n" RESET, getFromHashMapStringString(&mapParameters, "ACTION"));
+
+	//On récupère l'action souhaité par le client
 	if((action = getFromHashMapStringString(&mapParameters, "ACTION")) != NULL){
 		int actionCod = atoi(action);
-		//choix de l'action
+		
+		//On pointe vers la bonne fonction
 		switch (actionCod){
 		case ACTION_DECONNEXION:
 			printf("     Sortie de : aiguillageServeur\n");
 			return 0;
 			break;
 		case ACTION_AJOUTE_UTILISATEUR:
+			//Accessible seulement par l'administrateur
 			if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
 				ajouteUtilisateur(mapParameters, "0");
 			}
 			break;
 		case ACTION_MODIFIE_UTILISATEUR:
+			//Accessible seulement par l'administrateur
 			if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
 				modifieUtilisateur(mapParameters);
 			}
 			break;
 		case ACTION_SUPPRIME_UTILISATEUR:
+			//Accessible seulement par l'administrateur
 			if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
 				supprimeUtilisateur(mapParameters);
 			}
@@ -252,19 +308,25 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 	return 1;
 }
 
-//fonction qui initialise la map des utilisateurs en lisant ou créant un fichier csv
+/**
+ * Fonction qui permet d'initialiser la mapUtilisateurs en créant le fichier csv ou en le lisant
+ **/
 void initMapUtilisateurs(){
 	printf("     Entrée dans : initMapUtilisateurs\n");
 
 	mapUtilisateurs.size = 0;
 
 	FILE* csv;
+	//Si on peut ouvrir le fichier c'est qu'il existe, on le lire donc
 	if((csv = fopen("mapUsers.csv", "r"))){	
 		char nom[BUFSIZ], prenom[BUFSIZ], mail[BUFSIZ], adressePostale[BUFSIZ], numTel[BUFSIZ], remarque[BUFSIZ], age[BUFSIZ], admin[BUFSIZ], login[BUFSIZ], password[BUFSIZ];
 		char ligne[BUFSIZ];
 		int cptUser = 0;
+
+		//On récupère les valeurs ligne par ligne (donc utilisateur par utilisateur)
 		while(fgets(ligne, BUFSIZ, csv) != NULL){
 			int cpt = 0;
+			//On extrait les differents champs de la ligne
 			recupereString(ligne, nom, &cpt, ',');
 			recupereString(ligne, prenom, &cpt, ',');
 			recupereString(ligne, mail, &cpt, ',');
@@ -276,6 +338,7 @@ void initMapUtilisateurs(){
 			recupereString(ligne, password, &cpt, ',');
 			recupereString(ligne, admin, &cpt, '\n');
 
+			//On stocke les valeurs dans les champs de l'utilisateur
 			utilisateur user;
 			user.nom = nom;
 			user.prenom = prenom;
@@ -286,13 +349,16 @@ void initMapUtilisateurs(){
 			user.age = atoi(age);
 			user.login = login;
 			user.password = password;
-			addToHashMapUserString(&mapUtilisateurs, user, admin);
 
+			//On ajoute l'utilisateur a la map
+			addToHashMapUserString(&mapUtilisateurs, user, admin);
 			cptUser++;
 		}
 		printf(YEL "%d utilisateur récupéré.\n" RESET, cptUser);
+		//On ferme le fichier precedemment ouvert
 		fclose(csv);
 	}else{
+		//On crée des "faux" parametres de requete pour pouvoir pointer vers ajouteUtilisateur()
 		hashMapStringString mapParameters = {.size = 0};
 		addToHashMapStringString(&mapParameters, "nom", "Terrier");
 		addToHashMapStringString(&mapParameters, "prenom", "Florian");
@@ -304,13 +370,16 @@ void initMapUtilisateurs(){
 		addToHashMapStringString(&mapParameters, "login", "floliroy");
 		addToHashMapStringString(&mapParameters, "password", "stri");
 
+		//On envoit notre map a ajouteUtilisateur()
 		ajouteUtilisateur(mapParameters, "1");
 	}
 
 	printf("     Sortie de : initMapUtilisateurs\n");
 }
 
-//serveur sur localhost:13214
+/**
+ * Main du serveur
+ **/
 int main() {
 	char *message = NULL;
 	utilisateur* userLogged;

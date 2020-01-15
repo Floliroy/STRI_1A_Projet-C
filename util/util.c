@@ -4,38 +4,33 @@
 #include "util.h"
 #include "../serveur/serveur.h"
 
-//fonction pour ajouter à la hash map une valeur et sa clé
 void addToHashMapStringString(hashMapStringString* map, char* key, char* value){
-	//allocation dynamique de la clé et de la valeur
+	//Allocation dynamique de la clé et de la valeur
 	char* newKey = malloc(strlen(key) * sizeof(char));
 	char* newValue = malloc(strlen(value) * sizeof(char));
-	
-	//strcpy copie la chaîne pointée par key dans la chaîne pointée par newKey pour que la chaine passé en parametre puisse etre modifié par la suite
 	strcpy(newKey, key);
 	strcpy(newValue, value);
 
+	//On stocke les valeurs dans la map
 	map->elem[map->size].key = newKey;
 	map->elem[map->size].value = newValue;
 
-	//incrémentation de la taille de la Hash map aprés ajout de la valeur 
+	//Incrémentation de la taille de la map 
 	map->size = map->size + 1;
 }
 
-//fonction pour obtenir une valeur de la HashMap à partir de sa clé
 char* getFromHashMapStringString(hashMapStringString* map, char* key){
 	for(int i=0 ; i<map->size ; i++){
-		//strcmp va comparer les clés de la map avec la clé passé en paramètre
+		//On regarde si la clé correspond à la valeur passé en parametre
 		if(map->elem[i].key != NULL && strcmp(map->elem[i].key,key) == 0){
 			return map->elem[i].value;
 		}
 	}
-	return NULL; //retourne null si on ne trouve aucune correspondance
+	return NULL; //Retourne null si on ne trouve aucune correspondance
 }
 
-/* ajoute un utilisateur à la HashMap des utilisateurs du serveur. 
- * Cette fonction consiste à faire des allocation dynamiques pour les différents 
- * pour que l'utilisateur passé en parametre puisse être modifié par la suite */
 void addToHashMapUserString(hashMapUserString* map, utilisateur key, char* value){
+	//Allocation dynamique des differents champs de l'utilisateur
 	utilisateur* newKey = malloc(sizeof(key));
 	char* newValue = malloc(strlen(value) * sizeof(char));
 	newKey->nom = malloc(strlen(key.nom) * sizeof(char));
@@ -57,41 +52,48 @@ void addToHashMapUserString(hashMapUserString* map, utilisateur key, char* value
 	newKey->password = malloc(strlen(key.password) * sizeof(char));
 	strcpy(newKey->password,key.password);
 
+	//On stocke les valeurs dans la map
 	map->elem[map->size].key = newKey;
 	map->elem[map->size].value = newValue;
+
+	//Incrémentation de la taille de la map 
 	map->size = map->size + 1;
-	
 }
 
-//fonction pour obtenir de la HashMap la valeur du string associé à un utilisateur (pour le moment ce string correspond a si il est admin ou non) 
 char* getFromHashMapUserString(hashMapUserString* map, utilisateur* key){
 	for(int i=0 ; i<map->size ; i++){
+		//On regarde si la clé correspond à la valeur passé en parametre
 		if(map->elem[i].key == key){
 			return map->elem[i].value;
 		}
 	}
-	return NULL;
+	return NULL; //Retourne null si on ne trouve aucune correspondance
 }
 
-//cette fonction permet de parcourir un string en d'en extraire en sous string entre l'indice de départ et un delimiteur
 void recupereString(char ligne[BUFSIZ], char string[BUFSIZ], int* start, char delimiteur){
 	int i = 0;
 	int cpt = *start;
+
+	//Tant qu'on a pas le caractere de fin
 	while(ligne[cpt] != delimiteur){
 		string[i] = ligne[cpt];
 		cpt++;
 		i++;
 	}
+
+	//On ferme notre string
 	string[i] = '\0';
 	cpt++;
+
+	//On incremente pour passer au caractere après le delimiteur
 	*start = cpt;
 }
 
-//fonction qui cherche un utilisateur par son nom et son prenom
 utilisateur* getUserWithNomPrenom(hashMapUserString* map, char* nom, char* prenom){
 	printf("     Entrée dans : getUserWithNomPrenom\n");
 
 	for(int i=0 ; i<map->size ; i++){
+		//On regarde si le nom et le prenom de l'utilisateur correspondent
 		if(map->elem[i].key->nom != NULL && map->elem[i].key->prenom != NULL && 
 		strcmp(map->elem[i].key->nom,nom) == 0 && strcmp(map->elem[i].key->prenom,prenom) == 0){
 			
@@ -99,55 +101,61 @@ utilisateur* getUserWithNomPrenom(hashMapUserString* map, char* nom, char* preno
 			return map->elem[i].key;
 		}
 	}
-	return NULL;
+	return NULL; //Retourne null si on ne trouve aucune correspondance
 }
 
-//fonction qui cherche un utilisateur par son login
 utilisateur* getUserWithLogin(hashMapUserString* map, char* login){
 	printf("     Entrée dans : getUserWithLogin\n");
 
 	for(int i=0 ; i<map->size ; i++){
+		//On regarde si le login de l'utilisateur correspondent
 		if(map->elem[i].key->login != NULL && strcmp(map->elem[i].key->login,login) == 0){
 			
 			printf("     Sortie de : getUserWithLogin\n");
 			return map->elem[i].key;
 		}
 	}
-	return NULL;
+	return NULL; //Retourne null si on ne trouve aucune correspondance
 }
 
-//retourne la position du curseur pour être au debut de la ligne de l'utilisateur recherché dans le fichier csv
 int getUserLineWithNomPrenom(char* nomParam, char* prenomParam){
 	printf("     Entrée dans : getUserLineWithNomPrenom\n");
 	
-	//ouverture du fichier en lecture
+	//Ouverture du fichier en lecture
 	FILE* csv = fopen("mapUsers.csv", "r");
 	char nom[BUFSIZ], prenom[BUFSIZ];
 	char ligne[BUFSIZ];
 	int retour = 0;
+
+	//On lit ligne par ligne
 	while(fgets(ligne, BUFSIZ, csv) != NULL){
 		int cpt = 0;
+		//On récupère le nom et le prenom qui sont les premieres valeurs stockées dans le csv
 		recupereString(ligne, nom, &cpt, ',');
 		recupereString(ligne, prenom, &cpt, ',');
 		while(ligne[cpt] != '\n'){
 			cpt++;
 		}
+		
+		//On regarde si le nom et le prenom de l'utilisateur correspondent
 		if(nom != NULL && prenom != NULL && strcmp(nom,nomParam) == 0 && strcmp(prenom,prenomParam) == 0){				
 			fclose(csv);
 			
 			printf("     Sortie de : getUserLineWithNomPrenom\n");
 			return retour;
 		}
-		//la fonction ftell permet de connaitre la position du pointeur de fichier csv
+		//On récupère la position du curseur a la fin de la ligne pour avoir le début de la ligne suivante
 		retour = ftell(csv);
 	}
 
+	//On ferme le fichier ouvert
 	fclose(csv);
-	return -1;
+
+	return -1; //Retourne -1 si on ne trouve aucune correspondance
 }
 
-//fonction pour savoir si l'utilisateur est administrateur
 int isUserAdmin(hashMapUserString mapUtilisateurs, utilisateur* user){
+	//Dans mapUtilisateurs la 'value' correspond a si l'utilisateur est admin
 	if(strcmp(getFromHashMapUserString(&mapUtilisateurs, user),"1") != 0){
 		return 0;
 	}else{
@@ -155,10 +163,11 @@ int isUserAdmin(hashMapUserString mapUtilisateurs, utilisateur* user){
 	}
 }
 
-/* fonction pour savoir si le mot de passe est valide. En faisant appel à la fonction getUserWithLogin
- * strcmp compare le mot de passe passé en paramètre avec le mot de passe de l'utilisateur. */
 int isMotDePasseValide(hashMapUserString mapUtilisateurs, char* login, char* password){
+	//On cherche l'utilisateur par son login
 	utilisateur* user = getUserWithLogin(&mapUtilisateurs, login);
+
+	//Si l'utilisateur existe on regarde si le mot de passe correspond
 	if(user != NULL && strcmp(password, user->password) == 0){
 		return 1;
 	}else{

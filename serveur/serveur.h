@@ -3,10 +3,21 @@
 
 #include "../util/util.h"
 
-//recupère les paramètres présent dans notre requête GET
+/**
+ * Extrait de la requête les différents parametres de cette derniere dans une HashMap
+ * 
+ * @param requete La requete recu
+ * @param mapParameters La map dans laquelle on stockera les parametres de la requete
+ * @return Renvoit 1 si on a récupéré quelquechose, 0 sinon
+ **/
 int extraitRequete(char *requete, hashMapStringString* mapParameters);
 
-//est ce que la requete est une requete GET
+/**
+ * Vérifie si la requete passé en parametre est bien une requete GET
+ * 
+ * @param requete La requete recu
+ * @return Renvoit 1 si c'est une requete GET, 0 sinon
+ **/
 int isRequeteGet(char *requete);
 
 /* Initialisation.

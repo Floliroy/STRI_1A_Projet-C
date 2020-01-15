@@ -16,7 +16,7 @@ Pour chaque action certains autres paramètres sont nécessaire.
 Il faudra en plus le login et le password de l'utilisateur qui souhaite se connecter.
 exemple : `http://localhost:13214/ACTION=1&login=floliroy&password=stri`
 
-2. `ACTION=2` -> Déonnexion du serveur de l'utilisateur précedemment connecté.
+2. `ACTION=2` -> Déconnexion du serveur de l'utilisateur précedemment connecté.
 exemple : `http://localhost:13214/ACTION=2`
 
 3. `ACTIOn=3` -> Ajoute un nouvel utilisateur (utilisable seulement si on est admin).
