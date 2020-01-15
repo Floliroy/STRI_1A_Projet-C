@@ -1,7 +1,7 @@
 # STRI_1A_Projet-C
 
 - Compilation :
-```gcc -Wall serveur/mainServeur.c serveur/serveur.c util/util.c -o mainServeur```
+```make mainServeur```
   
 - Execution :
 ```./mainServeur```
