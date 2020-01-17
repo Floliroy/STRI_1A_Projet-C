@@ -90,3 +90,46 @@ int isMotDePasseValide(hashMapUserString mapUtilisateurs, char* login, char* pas
 		return 0;
 	}
 }
+
+int isUserAdminWithNomPrenomInCsvFile(char* nomParam, char* prenomParam){
+	printf("     Entrée dans : isUserAdminWithNomPrenomInCsvFile\n");
+	
+	//Ouverture du fichier en lecture
+	FILE* csv = fopen("util/mapUsers.csv", "r");
+	char nom[BUFSIZ], prenom[BUFSIZ], admin[BUFSIZ], champ[BUFSIZ];
+	char ligne[BUFSIZ];
+
+	//On lit ligne par ligne
+	while(fgets(ligne, BUFSIZ, csv) != NULL){
+		int cpt = 0;
+		//On récupère le nom et le prenom qui sont les premieres valeurs stockées dans le csv
+		recupereString(ligne, nom, &cpt, ',');
+		recupereString(ligne, prenom, &cpt, ',');
+		
+		//On regarde si le nom et le prenom de l'utilisateur correspondent
+		if(nom != NULL && prenom != NULL && strcmp(nom,nomParam) == 0 && strcmp(prenom,prenomParam) == 0){				
+			//On récupère les autres champs
+			for(int i=0 ; i<7 ; i++){
+				recupereString(ligne, champ, &cpt, ',');
+			}
+			recupereString(ligne, admin, &cpt, '\n');
+			
+			//On renvoit la bonne valeur
+			printf("     Sortie de : isUserAdminWithNomPrenomInCsvFile\n");
+			if(admin != NULL && strcmp(admin, "1") != 0){
+				return 1;
+			}else{
+				return 0;
+			}
+		}else{
+			//Sinon on passe a la ligne suivante
+			while(ligne[cpt] != '\n'){
+				cpt++;
+			}
+		}		
+	}
+	//On ferme le fichier ouvert
+	fclose(csv);
+
+	return 0; //Retourne null si on ne trouve aucune correspondance
+}

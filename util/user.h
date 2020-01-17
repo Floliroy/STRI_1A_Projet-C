@@ -50,4 +50,13 @@ int isUserAdmin(hashMapUserString mapUtilisateurs, utilisateur* user);
  **/
 int isMotDePasseValide(hashMapUserString mapUtilisateurs, char* login, char* password);
 
+/**
+ * Cherche un utilisateur par son nom et son prénom dans le fichier csv et renvoit s'il est admin ou non.
+ * 
+ * @param nomParam Le nom de l'utilisateur recherché
+ * @param prenomParam Le prenom de l'utilisateur recherché
+ * @return 1 s'il est admin, 0 sinon
+ **/
+int isUserAdminWithNomPrenomInCsvFile(char* nomParam, char* prenomParam);
+
 #endif
