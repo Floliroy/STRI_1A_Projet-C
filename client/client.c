@@ -13,6 +13,8 @@
 #include <errno.h>
 
 #include "client.h"
+#include "../util/util.h"
+#include "../util/user.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -27,6 +29,29 @@ int socketClient;
 char tamponClient[LONGUEUR_TAMPON];
 int debutTampon;
 int finTampon;
+
+void envoieRequeteFormatee(hashMapStringString mapParameters){
+	char requete[LONGUEUR_TAMPON];
+	//On crée la requete
+	strcat(requete, "localhost:13214/");
+
+	//On parcoure la map entièrement
+	for(int i=0 ; i<mapParameters.size ; i++){
+		strcat(requete, mapParameters.elem[i].key);
+		strcat(requete, "=");		
+		strcat(requete, mapParameters.elem[i].value);
+
+		//Si on a d'autres paramètres à ajouter
+		if(i != mapParameters.size){
+			strcat(requete, "&");	
+		}
+	}
+	requete[strlen(requete) - 1] = '\0';
+
+	printf("J'envoie : %s\n", requete);
+	//TODO : Emettre la requete
+}
+
 
 /* Initialisation.
  * Connexion au serveur sur la machine donnee.
@@ -167,7 +192,7 @@ int ReceptionBinaire(char *donnees, size_t tailleMax) {
 	}
 }
 
-/* Envoie des donn�es au serveur en pr�cisant leur taille.
+/* Envoie des donn�es au serveur en pr�cisant leur taille.
  */
 int EmissionBinaire(char *donnees, size_t taille) {
 	int retour = 0;

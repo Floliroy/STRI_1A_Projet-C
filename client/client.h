@@ -1,6 +1,15 @@
 #ifndef __CLIENT_H__
 #define __CLIENT_H__
 
+#include "../util/util.h"
+
+/**
+ * Permet d'envoyer une requète formatée avec une HashMap<String,String> de paramètres.
+ * 
+ * @param mapParameters Les paramètres de notre requête
+ **/
+void envoieRequeteFormatee(hashMapStringString mapParameters);
+
 /* Initialisation.
  * Connexion au serveur sur la machine donnee.
  * Utilisez localhost pour un fonctionnement local.

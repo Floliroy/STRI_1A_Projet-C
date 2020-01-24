@@ -7,12 +7,6 @@ mainServeur.o: serveur/mainServeur.c
 serveur.o: serveur/serveur.c
 	gcc -o serveur.o -c serveur/serveur.c -Wall -O
 
-util.o: util/util.c
-	gcc -o util.o -c util/util.c -Wall -O
-
-user.o: util/user.c
-	gcc -o user.o -c util/user.c -Wall -O
-
 
 mainClient: mainClient.o client.o util.o user.o
 	gcc -o mainClient mainClient.o client.o util.o user.o; rm -f *.o core
@@ -22,6 +16,7 @@ mainClient.o: client/mainClient.c
 
 client.o: client/client.c
 	gcc -o client.o -c client/client.c -Wall -O
+
 
 util.o: util/util.c
 	gcc -o util.o -c util/util.c -Wall -O
