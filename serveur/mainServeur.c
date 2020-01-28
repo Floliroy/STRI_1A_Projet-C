@@ -435,7 +435,7 @@ void initMapUtilisateurs(){
  **/
 int main() {
 	char *message = NULL;
-	utilisateur* userLogged;
+	utilisateur* userLogged = malloc(sizeof(utilisateur));
 	int logged = 0;
 	int aiguillage;
 
@@ -462,7 +462,6 @@ int main() {
 				if(aiguillage == 0){
 					printf(RED "Deconnexion du login: \"%s\".\n" RESET, userLogged->login);
 					logged = 0;
-					free(userLogged);
 
 					//On indique qu'on c'est bien déconnecté
 					char retour[BUFSIZ];
@@ -481,6 +480,7 @@ int main() {
 				if(login != NULL && password != NULL && action != NULL &&
 				strcmp(action,"1") == 0 && isMotDePasseValide(mapUtilisateurs, login, password) == 1){
 					//On crée alors notre utilisateur connecté
+					free(userLogged);
 					userLogged = malloc(sizeof(utilisateur));
 					userLogged = getUserWithLogin(&mapUtilisateurs, login);
 					logged = 1;
@@ -502,8 +502,7 @@ int main() {
 			free(message);
 		}else{
 			TerminaisonClient();
-			//logged = 0;
-			//free(userLogged);
+			logged = 0;
 		}
 	}
 

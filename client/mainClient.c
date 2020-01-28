@@ -159,7 +159,7 @@ void supprimeUtilisateur(){
 	envoieRequeteFormatee(mapParameters);
 }
 
-void aiguillage(int action){
+void aiguillageAction(int action){
 	switch (action){
 	case ACTION_CONNEXION:
 		connexion();
@@ -175,6 +175,23 @@ void aiguillage(int action){
 		break;
 	case ACTION_SUPPRIME_UTILISATEUR:
 		supprimeUtilisateur();
+		break;
+	}
+}
+
+void aiguillageRetour(int code, int* logged, int* admin){
+	switch (code){
+	case CODE_CONNEXION_REUSSI_ADMIN:
+		*logged = 1;
+		*admin = 1;
+		break;
+	case CODE_CONNEXION_REUSSI_USER:
+		*logged = 1;
+		*admin = 0;
+		break;
+	case CODE_DECONNEXION:
+		*logged = 0;
+		*admin = 0;
 		break;
 	}
 }
@@ -223,7 +240,6 @@ int afficheMenu(int admin){
 
 int main() {    
 	char* message = (char*) malloc(sizeof(char));
-	int retour;
 	int admin = 0;
 	int logged = 0;
 
@@ -231,15 +247,12 @@ int main() {
 		if(logged == 0){
 			connexion();
 		}else{
-			retour = afficheMenu(admin);
-			if(retour == ACTION_DECONNEXION){
-				logged = 0;
-				admin = 0;
-			}
+			aiguillageAction(afficheMenu(admin));
 		}
 		free(message);
 		message = Reception();
 		printf("J'ai recu : %s", message);
+		aiguillageRetour(atoi(message), &logged, &admin);
 	}
 
 	/*if(Emission("GET / HTTP/1.1\nHost: www.stri.ups-tlse.fr\n\n")!=1) {
