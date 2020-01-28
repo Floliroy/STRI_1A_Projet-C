@@ -5,7 +5,10 @@
 #include "../util/util.h"
 #include "../util/user.h"
 
-int monLire(char chaine[BUFSIZ]){    
+/**
+ * Permet de lire une chaine tapée dans la console
+ **/
+int monLire(char chaine[BUFSIZ]){
 	int taille;
     if(!fgets(chaine, BUFSIZ, stdin)){        
 		return(-1);    
@@ -17,6 +20,9 @@ int monLire(char chaine[BUFSIZ]){
     return taille;
 }
 
+/**
+ * Permet de se connecter au serveur en demandant le login et le mdp utilisateur
+ **/
 void connexion(){
 	hashMapStringString mapParameters = {.size = 0};
 	char login[BUFSIZ], password[BUFSIZ];
@@ -33,6 +39,9 @@ void connexion(){
 	envoieRequeteFormatee(mapParameters);
 }
 
+/**
+ * Permet de déconnecter l'utilisateur actuellement connecté sur le serveur
+ **/
 void deconnexion(){
 	hashMapStringString mapParameters= {.size = 0};
 
@@ -42,6 +51,9 @@ void deconnexion(){
 	envoieRequeteFormatee(mapParameters);
 }
 
+/**
+ * Permet d'ajouter un nouvel utilisateur en demandant les champs nécessaires
+ **/
 void ajouteUtilisateur(){
 	hashMapStringString mapParameters = {.size = 0};
 	char nom[BUFSIZ], prenom[BUFSIZ], mail[BUFSIZ], adressePostale[BUFSIZ], numTel[BUFSIZ], remarque[BUFSIZ], age[BUFSIZ], login[BUFSIZ], password[BUFSIZ];
@@ -89,6 +101,9 @@ void ajouteUtilisateur(){
 	envoieRequeteFormatee(mapParameters);
 }
 
+/**
+ * Permet de modifier un utilisateur en demandant son nom et son prénom ainsi que les infos a modifier
+ **/
 void modifieUtilisateur(){
 	hashMapStringString mapParameters = {.size = 0};
 	char nom[BUFSIZ], prenom[BUFSIZ], mail[BUFSIZ], adressePostale[BUFSIZ], numTel[BUFSIZ], remarque[BUFSIZ], age[BUFSIZ], login[BUFSIZ], password[BUFSIZ];
@@ -142,6 +157,9 @@ void modifieUtilisateur(){
 	envoieRequeteFormatee(mapParameters);
 }
 
+/**
+ * Permet de supprimer un utilisateur en demandant son nom et son prénom 
+ **/
 void supprimeUtilisateur(){
 	hashMapStringString mapParameters = {.size = 0};
 	char nom[BUFSIZ], prenom[BUFSIZ];
@@ -159,6 +177,11 @@ void supprimeUtilisateur(){
 	envoieRequeteFormatee(mapParameters);
 }
 
+/**
+ * Aiguille vers la bonne fonction suivant l'action souhaitée
+ * 
+ * @param action Le numéro de l'action souhaitée
+ **/
 void aiguillageAction(int action){
 	switch (action){
 	case ACTION_CONNEXION:
@@ -179,6 +202,13 @@ void aiguillageAction(int action){
 	}
 }
 
+/**
+ * Affiche différenntes chaines suivant le code de retour recu, peut aussi changer l'état de logged et admin
+ * 
+ * @param code Le code de retour
+ * @param logged L'état de connexion de l'utilisateur
+ * @param admin L'état administrateur de l'utilisateur 
+ **/
 void aiguillageRetour(int code, int* logged, int* admin){
 	switch (code){
 	case CODE_CONNEXION_REUSSI_ADMIN:
@@ -196,6 +226,12 @@ void aiguillageRetour(int code, int* logged, int* admin){
 	}
 }
 
+/**
+ * Affiche le menu du client avec les différentes actions possibles
+ * 
+ * @param admin Indique si l'utilisateur est un admin et donc s'il a accés aux actions réservés aux admins
+ * @return Retourne l'action souhaitée
+ **/
 int afficheMenu(int admin){
 	int action;
 	char stringAction[BUFSIZ];
@@ -238,6 +274,9 @@ int afficheMenu(int admin){
 	return -1;
 }
 
+/**
+ * Main du client
+ **/
 int main() {    
 	char* message = (char*) malloc(sizeof(char));
 	int admin = 0;
@@ -245,32 +284,19 @@ int main() {
 
 	while(1){
 		if(logged == 0){
+			//Si on est pas connecté alors on essaye de se connecter
 			connexion();
 		}else{
+			//Sinon on va vers le menu du client
 			aiguillageAction(afficheMenu(admin));
 		}
+
 		free(message);
 		message = Reception();
-		printf("J'ai recu : %s", message);
+		//printf("J'ai recu : %s", message);
+		//On affiche des messages suivant le code de retour recu
 		aiguillageRetour(atoi(message), &logged, &admin);
 	}
-
-	/*if(Emission("GET / HTTP/1.1\nHost: www.stri.ups-tlse.fr\n\n")!=1) {
-		printf("Erreur d'Émission\n");
-		return 1;
-	}
-
-	message = Reception();
-	if(message == NULL){
-		printf("Erreur de Réception\n");
-		return 1;
-	}       
-	printf("Reception :\n\n");
-	while(message!=NULL){
-		printf("%s", message);
-		free(message);
-		message = Reception();
-	}*/
 
     return 0;
 }
