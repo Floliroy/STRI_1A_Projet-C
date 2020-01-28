@@ -33,23 +33,6 @@ void connexion(){
 	envoieRequeteFormatee(mapParameters);
 }
 
-int connexion(){
-	hashMapStringString mapParameters= {.size = 0};
-	char login[BUFSIZ], password[BUFSIZ];
-
-	printf(RED "\nConnectez vous :\n" RESET);
-
-	printf("Entrez votre login : ");
-	monLire(login);
-	printf("Entrez votre mot de passe : ");
-	monLire(password);
-
-	addToHashMapStringString(&mapParameters, "ACTION", "1");
-	addToHashMapStringString(&mapParameters, "login", login);
-	addToHashMapStringString(&mapParameters, "password", password);
-	envoieRequeteFormatee(mapParameters);
-}
-
 void deconnexion(){
 	hashMapStringString mapParameters= {.size = 0};
 
@@ -239,23 +222,19 @@ int afficheMenu(int admin){
 }
 
 int main() {    
-	//char* message;
+	char* message = (char*) malloc(sizeof(char));
 	int retour;
 	int admin = 0;
-	int logged = 1;
+	int logged = 0;
 
-	while (1){
-		aiguillage(afficheMenu(1));
-	}
-
-	/*if(Initialisation("localhost") != 1) {
+	if(Initialisation("localhost") != 1) {
 		printf("Erreur d'initialisation\n");
 		return 1;
 	}
 
 	while(1){
 		if(logged == 0){
-
+			connexion();
 		}else{
 			retour = afficheMenu(admin);
 			if(retour == ACTION_DECONNEXION){
@@ -263,7 +242,10 @@ int main() {
 				admin = 0;
 			}
 		}
-	}*/
+		free(message);
+		message = Reception();
+		printf("J'ai recu : %s", message);
+	}
 
 	/*if(Emission("GET / HTTP/1.1\nHost: www.stri.ups-tlse.fr\n\n")!=1) {
 		printf("Erreur d'Émission\n");

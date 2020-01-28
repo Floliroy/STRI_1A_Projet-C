@@ -32,8 +32,8 @@ int finTampon;
 
 void envoieRequeteFormatee(hashMapStringString mapParameters){
 	char requete[LONGUEUR_TAMPON];
-	//On crée la requete
-	strcat(requete, "localhost:13214/");
+	//On reset la requete
+	strcpy(requete, "");
 
 	//On parcoure la map entièrement
 	for(int i=0 ; i<mapParameters.size ; i++){
@@ -49,6 +49,12 @@ void envoieRequeteFormatee(hashMapStringString mapParameters){
 	requete[strlen(requete) - 1] = '\0';
 
 	printf("J'envoie : %s\n", requete);
+
+	char emission[BUFSIZ];
+	sprintf(emission, "GET /%s\n\n", requete);
+	if(Emission(emission)!=1) {
+		printf("Erreur d'Émission\n");
+	}
 	//TODO : Emettre la requete
 }
 

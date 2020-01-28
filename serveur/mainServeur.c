@@ -19,6 +19,7 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	char *nom, *prenom, *mail, *adressePostale, *numTel, *remarque, *age, *login, *password;
 
 	utilisateur newUtilisateur;
+	char retour[BUFSIZ];
 	
 	//Si les informations obligatoires (nom, prenom, adresse mail, login, password) sont nulles alors on ne peut pas ajouter un nouvel utilisateur
 	if((nom = getFromHashMapStringString(&mapParameters, "nom")) == NULL ||
@@ -27,6 +28,9 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	(login = getFromHashMapStringString(&mapParameters, "login")) == NULL ||
 	(password = getFromHashMapStringString(&mapParameters, "password")) == NULL){
 		printf("Erreur, données manquantes pour ajouter un nouvel utilisateur.\n");
+
+		sprintf(retour, "%d\n", CODE_CHAMPS_MANQUANTS_INVALIDES);
+		Emission(retour);
 		return 0;
 	}else{
 		newUtilisateur.nom = nom;
@@ -40,11 +44,17 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	utilisateur* user = getUserWithNomPrenom(&mapUtilisateurs, nom, prenom);
 	if(user != NULL){
 		printf("Erreur, cet utilisateur existe deja.\n");
+		
+		sprintf(retour, "%d\n", CODE_USER_ANNUAIRE_EXISTANT);
+		Emission(retour);
 		return 0;
 	}
 	user = getUserWithLogin(&mapUtilisateurs, login);
 	if(user != NULL){
 		printf("Erreur, cet utilisateur existe deja.\n");
+		
+		sprintf(retour, "%d\n", CODE_USER_ANNUAIRE_EXISTANT);
+		Emission(retour);
 		return 0;
 	}
 
@@ -88,6 +98,9 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	fclose(csv);
 
 	printf(YEL "Utilisateur %s %s ajouté.\n" RESET, nom, prenom);
+
+	sprintf(retour, "%d\n", CODE_ACTION_REUSSI);
+	Emission(retour);
 	printf("     Sortie de : ajouteUtilisateur\n");
 	return 1;
 }
@@ -101,11 +114,16 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 int modifieUtilisateur(hashMapStringString mapParameters){
 	printf("     Entrée dans : modifieUtilisateur\n");
 	char *nom, *prenom, *mail, *adressePostale, *numTel, *remarque, *age, *admin, *login, *password;
+
+	char retour[BUFSIZ];
 	
 	//Si on n'a ni le nom ni le prenom alors on ne peut pas savoir quel utilisateur modifier
 	if((nom = getFromHashMapStringString(&mapParameters, "nom")) == NULL ||
 	(prenom = getFromHashMapStringString(&mapParameters, "prenom")) == NULL){
 		printf("Erreur, données manquantes pour modifier un utilisateur.\n");
+
+		sprintf(retour, "%d\n", CODE_CHAMPS_MANQUANTS_INVALIDES);
+		Emission(retour);
 		return 0;
 	}
 
@@ -113,6 +131,9 @@ int modifieUtilisateur(hashMapStringString mapParameters){
 	utilisateur* user = getUserWithNomPrenom(&mapUtilisateurs ,nom, prenom);
 	if(user == NULL){
 		printf("Erreur, utilisateur introuvable.\n");
+
+		sprintf(retour, "%d\n", CODE_USER_ANNUAIRE_INTROUVABLE);
+		Emission(retour);
 		return 0;
 	}
 	admin = getFromHashMapUserString(&mapUtilisateurs, user);
@@ -191,6 +212,9 @@ int modifieUtilisateur(hashMapStringString mapParameters){
 	rename("util/temp.csv", "util/mapUsers.csv");
 
 	printf(YEL "Utilisateur %s %s modifié.\n" RESET, nom, prenom);
+
+	sprintf(retour, "%d\n", CODE_ACTION_REUSSI);
+	Emission(retour);
 	printf("     Sortie de : modifieUtilisateur\n");
 	return 1;
 }
@@ -205,10 +229,15 @@ int supprimeUtilisateur(hashMapStringString mapParameters){
 	printf("     Entrée dans : supprimeUtilisateur\n");
 	char *nom, *prenom;
 
+	char retour[BUFSIZ];
+
 	//Si on n'a ni le nom ni le prenom alors on ne peut pas savoir quel utilisateur supprimer
 	if((nom = getFromHashMapStringString(&mapParameters, "nom")) == NULL ||
 	(prenom = getFromHashMapStringString(&mapParameters, "prenom")) == NULL){
 		printf("Erreur, données manquantes pour supprimer un utilisateur.\n");
+
+		sprintf(retour, "%d\n", CODE_CHAMPS_MANQUANTS_INVALIDES);
+		Emission(retour);
 		return 0;
 	}
 	
@@ -257,6 +286,9 @@ int supprimeUtilisateur(hashMapStringString mapParameters){
 	rename("util/temp.csv", "util/mapUsers.csv");
 
 	printf(YEL "Utilisateur %s %s supprimé.\n" RESET, nom, prenom);
+
+	sprintf(retour, "%d\n", CODE_ACTION_REUSSI);
+	Emission(retour);
 	printf("     Sortie de : supprimeUtilisateur\n");
 	return 1;
 }
@@ -272,6 +304,7 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 	printf("     Entrée dans : aiguillageServeur\n");
 
 	char* action;
+	char retour[BUFSIZ];
 	printf(BLU "ACTION = %s\n" RESET, getFromHashMapStringString(&mapParameters, "ACTION"));
 
 	//On récupère l'action souhaité par le client
@@ -288,21 +321,40 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 			//Accessible seulement par l'administrateur
 			if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
 				ajouteUtilisateur(mapParameters, "0");
+			}else{
+				sprintf(retour, "%d\n", CODE_ACTION_IMPOSSIBLE);
+				Emission(retour);
 			}
 			break;
 		case ACTION_MODIFIE_UTILISATEUR:
 			//Accessible seulement par l'administrateur
 			if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
 				modifieUtilisateur(mapParameters);
+			}else{
+				sprintf(retour, "%d\n", CODE_ACTION_IMPOSSIBLE);
+				Emission(retour);
 			}
 			break;
 		case ACTION_SUPPRIME_UTILISATEUR:
 			//Accessible seulement par l'administrateur
 			if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
 				supprimeUtilisateur(mapParameters);
+			}else{
+				sprintf(retour, "%d\n", CODE_ACTION_IMPOSSIBLE);
+				Emission(retour);
 			}
 			break;
 		}
+
+		//Si on ne connait pas l'action souhaitée
+		if(actionCod < 1 || actionCod > 5){
+			sprintf(retour, "%d\n", CODE_ACTION_INCONNU);
+			Emission(retour);
+		}
+	}else{
+		//Si l'action est a NULL
+		sprintf(retour, "%d\n", CODE_ACTION_INCONNU);
+		Emission(retour);
 	}
 	
 	printf("     Sortie de : aiguillageServeur\n");
@@ -385,19 +437,19 @@ int main() {
 	char *message = NULL;
 	utilisateur* userLogged;
 	int logged = 0;
-	int retour;
+	int aiguillage;
 
 	//On initialise notre map d'utilisateurs et le serveur
 	initMapUtilisateurs();
 	Initialisation();
+	AttenteClient();
 
 	while(1) {
-		//On attends un message du client
-		AttenteClient();
+		//On attends un message du client		
 		message = Reception();
 		//On 'reset' notre map des paramètres de la requête
 		hashMapStringString mapParameters = {.size = 0};
-
+		
 		//Si on a une requete GET et qu'on peut en récupérer des paramètres
 		if(message != NULL && isRequeteGet(message) == 1 && extraitRequete(message, &mapParameters) == 1) {
 			printf(YEL "\nJ'ai recu: %s\n" RESET, message);
@@ -405,12 +457,17 @@ int main() {
 			//Si l'utilisateur est connecté
 			if(logged == 1){
 				//On pointe alors sur nnotre aiguillage
-				retour = aiguillageServeur(mapParameters, userLogged);
-				//Un retour à 0 indique un souhait de déconnexion
-				if(retour == 0){
+				aiguillage = aiguillageServeur(mapParameters, userLogged);
+				//Un aiguillage à 0 indique un souhait de déconnexion
+				if(aiguillage == 0){
 					printf(RED "Deconnexion du login: \"%s\".\n" RESET, userLogged->login);
 					logged = 0;
 					free(userLogged);
+
+					//On indique qu'on c'est bien déconnecté
+					char retour[BUFSIZ];
+					sprintf(retour, "%d\n", CODE_DECONNEXION);
+					Emission(retour);
 				}
 			}else{
 				printf("Attente de connexion...\n");
@@ -418,6 +475,7 @@ int main() {
 				char* login = getFromHashMapStringString(&mapParameters, "login");
 				char* password = getFromHashMapStringString(&mapParameters, "password");
 				char* action = getFromHashMapStringString(&mapParameters, "ACTION");
+				char retour[BUFSIZ];
 
 				//Si on a une demande de connexion et que le login et mot de passe sont valides
 				if(login != NULL && password != NULL && action != NULL &&
@@ -427,7 +485,17 @@ int main() {
 					userLogged = getUserWithLogin(&mapUtilisateurs, login);
 					logged = 1;
 					printf(RED "Connexion réussie avec le login: \"%s\".\n" RESET, login);
+
+					//On emet si l'utilisateur est un admin ou non
+					if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
+						sprintf(retour, "%d\n", CODE_CONNEXION_REUSSI_ADMIN);
+					}else{
+						sprintf(retour, "%d\n", CODE_CONNEXION_REUSSI_USER);
+					}
+				}else{
+					sprintf(retour, "%d\n", CODE_CONNEXION_PAS_OK);
 				}
+				Emission(retour);
 			}		
 
 			//On libère l'espace mémoire alloué au message recu
