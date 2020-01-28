@@ -227,11 +227,6 @@ int main() {
 	int admin = 0;
 	int logged = 0;
 
-	if(Initialisation("localhost") != 1) {
-		printf("Erreur d'initialisation\n");
-		return 1;
-	}
-
 	while(1){
 		if(logged == 0){
 			connexion();

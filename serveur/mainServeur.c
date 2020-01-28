@@ -442,10 +442,10 @@ int main() {
 	//On initialise notre map d'utilisateurs et le serveur
 	initMapUtilisateurs();
 	Initialisation();
-	AttenteClient();
 
 	while(1) {
 		//On attends un message du client		
+		AttenteClient();
 		message = Reception();
 		//On 'reset' notre map des paramètres de la requête
 		hashMapStringString mapParameters = {.size = 0};

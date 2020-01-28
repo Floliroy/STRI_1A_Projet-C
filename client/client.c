@@ -31,6 +31,10 @@ int debutTampon;
 int finTampon;
 
 void envoieRequeteFormatee(hashMapStringString mapParameters){
+	if(Initialisation("localhost") != 1) {
+		printf("Erreur d'initialisation\n");
+	}
+
 	char requete[LONGUEUR_TAMPON];
 	//On reset la requete
 	strcpy(requete, "");
