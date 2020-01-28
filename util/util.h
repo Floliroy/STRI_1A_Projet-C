@@ -8,6 +8,20 @@
 #define ACTION_MODIFIE_UTILISATEUR 4
 #define ACTION_SUPPRIME_UTILISATEUR 5
 
+//Constantes concernant les codes de retour / d'erreur
+#define CODE_CONNEXION_REUSSI_USER 10
+#define CODE_CONNEXION_REUSSI_ADMIN 11
+#define CODE_CONNEXION_PAS_OK 12
+#define CODE_DECONNEXION 13
+
+#define CODE_ACTION_INCONNU 20
+#define CODE_ACTION_REUSSI 21
+#define CODE_ACTION_IMPOSSIBLE 22
+
+#define CODE_CHAMPS_MANQUANTS_INVALIDES 30
+#define CODE_USER_ANNUAIRE_EXISTANT 31
+#define CODE_USER_ANNUAIRE_INTROUVABLE 32
+
 //Couleurs pour les printf en console
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"

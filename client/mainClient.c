@@ -33,6 +33,23 @@ void connexion(){
 	envoieRequeteFormatee(mapParameters);
 }
 
+int connexion(){
+	hashMapStringString mapParameters= {.size = 0};
+	char login[BUFSIZ], password[BUFSIZ];
+
+	printf(RED "\nConnectez vous :\n" RESET);
+
+	printf("Entrez votre login : ");
+	monLire(login);
+	printf("Entrez votre mot de passe : ");
+	monLire(password);
+
+	addToHashMapStringString(&mapParameters, "ACTION", "1");
+	addToHashMapStringString(&mapParameters, "login", login);
+	addToHashMapStringString(&mapParameters, "password", password);
+	envoieRequeteFormatee(mapParameters);
+}
+
 void deconnexion(){
 	hashMapStringString mapParameters= {.size = 0};
 
