@@ -209,7 +209,14 @@ void aiguillageAction(int action){
  * @param logged L'état de connexion de l'utilisateur
  * @param admin L'état administrateur de l'utilisateur 
  **/
-void aiguillageRetour(int code, int* logged, int* admin){
+void aiguillageRetour(char* message, int* logged, int* admin){
+	
+	char stringCode[BUFSIZ];
+	int cpt = 0;
+	recupereString(message, stringCode, &cpt, ' ')
+
+	int code = atoi(stringCode);
+
 	switch (code){
 	case CODE_CONNEXION_REUSSI_ADMIN:
 		*logged = 1;
@@ -293,9 +300,8 @@ int main() {
 
 		free(message);
 		message = Reception();
-		//printf("J'ai recu : %s", message);
 		//On affiche des messages suivant le code de retour recu
-		aiguillageRetour(atoi(message), &logged, &admin);
+		aiguillageRetour(message, &logged, &admin);
 	}
 
     return 0;

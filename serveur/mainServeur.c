@@ -29,7 +29,7 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	(password = getFromHashMapStringString(&mapParameters, "password")) == NULL){
 		printf("Erreur, données manquantes pour ajouter un nouvel utilisateur.\n");
 
-		sprintf(retour, "%d\n", CODE_CHAMPS_MANQUANTS_INVALIDES);
+		sprintf(retour, "%d \n", CODE_CHAMPS_MANQUANTS_INVALIDES);
 		Emission(retour);
 		return 0;
 	}else{
@@ -45,7 +45,7 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	if(user != NULL){
 		printf("Erreur, cet utilisateur existe deja.\n");
 		
-		sprintf(retour, "%d\n", CODE_USER_ANNUAIRE_EXISTANT);
+		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_EXISTANT);
 		Emission(retour);
 		return 0;
 	}
@@ -53,7 +53,7 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	if(user != NULL){
 		printf("Erreur, cet utilisateur existe deja.\n");
 		
-		sprintf(retour, "%d\n", CODE_USER_ANNUAIRE_EXISTANT);
+		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_EXISTANT);
 		Emission(retour);
 		return 0;
 	}
@@ -99,7 +99,7 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 
 	printf(YEL "Utilisateur %s %s ajouté.\n" RESET, nom, prenom);
 
-	sprintf(retour, "%d\n", CODE_ACTION_REUSSI);
+	sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
 	Emission(retour);
 	printf("     Sortie de : ajouteUtilisateur\n");
 	return 1;
@@ -122,7 +122,7 @@ int modifieUtilisateur(hashMapStringString mapParameters){
 	(prenom = getFromHashMapStringString(&mapParameters, "prenom")) == NULL){
 		printf("Erreur, données manquantes pour modifier un utilisateur.\n");
 
-		sprintf(retour, "%d\n", CODE_CHAMPS_MANQUANTS_INVALIDES);
+		sprintf(retour, "%d \n", CODE_CHAMPS_MANQUANTS_INVALIDES);
 		Emission(retour);
 		return 0;
 	}
@@ -132,7 +132,7 @@ int modifieUtilisateur(hashMapStringString mapParameters){
 	if(user == NULL){
 		printf("Erreur, utilisateur introuvable.\n");
 
-		sprintf(retour, "%d\n", CODE_USER_ANNUAIRE_INTROUVABLE);
+		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_INTROUVABLE);
 		Emission(retour);
 		return 0;
 	}
@@ -213,7 +213,7 @@ int modifieUtilisateur(hashMapStringString mapParameters){
 
 	printf(YEL "Utilisateur %s %s modifié.\n" RESET, nom, prenom);
 
-	sprintf(retour, "%d\n", CODE_ACTION_REUSSI);
+	sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
 	Emission(retour);
 	printf("     Sortie de : modifieUtilisateur\n");
 	return 1;
@@ -236,7 +236,7 @@ int supprimeUtilisateur(hashMapStringString mapParameters){
 	(prenom = getFromHashMapStringString(&mapParameters, "prenom")) == NULL){
 		printf("Erreur, données manquantes pour supprimer un utilisateur.\n");
 
-		sprintf(retour, "%d\n", CODE_CHAMPS_MANQUANTS_INVALIDES);
+		sprintf(retour, "%d \n", CODE_CHAMPS_MANQUANTS_INVALIDES);
 		Emission(retour);
 		return 0;
 	}
@@ -287,7 +287,7 @@ int supprimeUtilisateur(hashMapStringString mapParameters){
 
 	printf(YEL "Utilisateur %s %s supprimé.\n" RESET, nom, prenom);
 
-	sprintf(retour, "%d\n", CODE_ACTION_REUSSI);
+	sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
 	Emission(retour);
 	printf("     Sortie de : supprimeUtilisateur\n");
 	return 1;
@@ -322,7 +322,7 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 			if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
 				ajouteUtilisateur(mapParameters, "0");
 			}else{
-				sprintf(retour, "%d\n", CODE_ACTION_IMPOSSIBLE);
+				sprintf(retour, "%d \n", CODE_ACTION_IMPOSSIBLE);
 				Emission(retour);
 			}
 			break;
@@ -331,7 +331,7 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 			if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
 				modifieUtilisateur(mapParameters);
 			}else{
-				sprintf(retour, "%d\n", CODE_ACTION_IMPOSSIBLE);
+				sprintf(retour, "%d \n", CODE_ACTION_IMPOSSIBLE);
 				Emission(retour);
 			}
 			break;
@@ -340,7 +340,7 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 			if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
 				supprimeUtilisateur(mapParameters);
 			}else{
-				sprintf(retour, "%d\n", CODE_ACTION_IMPOSSIBLE);
+				sprintf(retour, "%d \n", CODE_ACTION_IMPOSSIBLE);
 				Emission(retour);
 			}
 			break;
@@ -348,12 +348,12 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 
 		//Si on ne connait pas l'action souhaitée
 		if(actionCod < 1 || actionCod > 5){
-			sprintf(retour, "%d\n", CODE_ACTION_INCONNU);
+			sprintf(retour, "%d \n", CODE_ACTION_INCONNU);
 			Emission(retour);
 		}
 	}else{
 		//Si l'action est a NULL
-		sprintf(retour, "%d\n", CODE_ACTION_INCONNU);
+		sprintf(retour, "%d \n", CODE_ACTION_INCONNU);
 		Emission(retour);
 	}
 	
@@ -465,7 +465,7 @@ int main() {
 
 					//On indique qu'on c'est bien déconnecté
 					char retour[BUFSIZ];
-					sprintf(retour, "%d\n", CODE_DECONNEXION);
+					sprintf(retour, "%d \n", CODE_DECONNEXION);
 					Emission(retour);
 				}
 			}else{
@@ -488,12 +488,12 @@ int main() {
 
 					//On emet si l'utilisateur est un admin ou non
 					if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
-						sprintf(retour, "%d\n", CODE_CONNEXION_REUSSI_ADMIN);
+						sprintf(retour, "%d \n", CODE_CONNEXION_REUSSI_ADMIN);
 					}else{
-						sprintf(retour, "%d\n", CODE_CONNEXION_REUSSI_USER);
+						sprintf(retour, "%d \n", CODE_CONNEXION_REUSSI_USER);
 					}
 				}else{
-					sprintf(retour, "%d\n", CODE_CONNEXION_PAS_OK);
+					sprintf(retour, "%d \n", CODE_CONNEXION_PAS_OK);
 				}
 				Emission(retour);
 			}		
