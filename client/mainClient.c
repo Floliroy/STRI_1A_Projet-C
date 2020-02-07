@@ -52,6 +52,41 @@ void deconnexion(){
 }
 
 /**
+ * Permet d'ajouter un annuaire
+ **/
+void ajouteAnnuaire(){
+	hashMapStringString mapParameters= {.size = 0};
+
+	printf(RED "\nAjout Annuaire !\n" RESET);
+
+	addToHashMapStringString(&mapParameters, "ACTION", "6");
+	envoieRequeteFormatee(mapParameters);
+}
+
+/**
+ * Permet d'ajouter un utilisateur a son annuaire
+ **/
+void modifieAnnuaire(){
+	hashMapStringString mapParameters= {.size = 0};
+	char nom[BUFSIZ], prenom[BUFSIZ], droits[BUFSIZ];
+
+	printf(RED "\nAjout d'un Utilisateur à l'Annuaire !\n" RESET);
+
+	printf("Entrez son nom : ");
+	monLire(nom);
+	printf("Entrez son prénom : ");
+	monLire(prenom);
+	printf("Entrez ses droits (0/1) : ");
+	monLire(droits);
+
+	addToHashMapStringString(&mapParameters, "ACTION", "7");
+	addToHashMapStringString(&mapParameters, "nom", nom);
+	addToHashMapStringString(&mapParameters, "prenom", prenom);
+	addToHashMapStringString(&mapParameters, "droits", droits);
+	envoieRequeteFormatee(mapParameters);
+}
+
+/**
  * Permet d'ajouter un nouvel utilisateur en demandant les champs nécessaires
  **/
 void ajouteUtilisateur(){
@@ -199,6 +234,12 @@ void aiguillageAction(int action){
 	case ACTION_SUPPRIME_UTILISATEUR:
 		supprimeUtilisateur();
 		break;
+	case ACTION_AJOUTE_ANNUAIRE:
+		ajouteAnnuaire();
+		break;
+	case ACTION_MODIFIE_ANNUAIRE:
+		modifieAnnuaire();
+		break;
 	}
 }
 
@@ -213,22 +254,46 @@ void aiguillageRetour(char* message, int* logged, int* admin){
 	
 	char stringCode[BUFSIZ];
 	int cpt = 0;
-	recupereString(message, stringCode, &cpt, ' ')
+	recupereString(message, stringCode, &cpt, ' ');
 
 	int code = atoi(stringCode);
 
 	switch (code){
 	case CODE_CONNEXION_REUSSI_ADMIN:
+		printf("	Vous vous êtes bien connecté en tant qu'admin.\n");
 		*logged = 1;
 		*admin = 1;
 		break;
 	case CODE_CONNEXION_REUSSI_USER:
+		printf("	Vous vous êtes bien connecté.\n");
 		*logged = 1;
 		*admin = 0;
 		break;
 	case CODE_DECONNEXION:
+		printf("	Vous vous êtes bien déconnecté.\n");
 		*logged = 0;
 		*admin = 0;
+		break;
+	case CODE_CONNEXION_PAS_OK:
+		printf("	Votre mot de passe ou login sont incorrects.\n");
+		break;
+	case CODE_ACTION_INCONNU:
+		printf("	L'action que vous souhaitez effectuer est inconnue.\n");
+		break;
+	case CODE_ACTION_REUSSI:
+		printf("	L'action a bien été effectuée.\n");
+		break;
+	case CODE_ACTION_IMPOSSIBLE:
+		printf("	Vous n'avez pas les droits pour effectuer cette action.\n");
+		break;
+	case CODE_CHAMPS_MANQUANTS_INVALIDES:
+		printf("	Vous n'avez pas bien renseigner les champs nécessaire a cette action.\n");
+		break;
+	case CODE_USER_ANNUAIRE_EXISTANT:
+		printf("	La ressouce que vous souhaitez ajouter existe déjà.\n");
+		break;
+	case CODE_USER_ANNUAIRE_INTROUVABLE:
+		printf("	La ressouce a laquelle vous souhaitez accéder est introuvable.\n");
 		break;
 	}
 }
@@ -245,19 +310,21 @@ int afficheMenu(int admin){
 	//On affiche le menu
 	printf(RED "\nBienvenue sur le Client de Floliroy :\n" RESET);
 	printf(BLU " 1. Se déconnecter\n" RESET);
+	printf(BLU " 2. Créer un annuraire\n" RESET);
+	printf(BLU " 3. Ajouter utilisateur à son annuaire\n" RESET);
 
 	//On affiche certains l'element seulement si l'utilisateur est admin
 	if(admin == 1){
-		printf(BLU " 2. Ajouter un utilisateur\n" RESET);
-		printf(BLU " 3. Modifier un utilisateur\n" RESET);
-		printf(BLU " 4. Supprimer un utilisateur\n" RESET);
+		printf(BLU " 4. Ajouter un utilisateur\n" RESET);
+		printf(BLU " 5. Modifier un utilisateur\n" RESET);
+		printf(BLU " 6. Supprimer un utilisateur\n" RESET);
 	}
 
 	printf("\nEntrer le numéro de l'action souhaitée : ");
 	//On récupère l'action souhaitée
 	monLire(stringAction);
 	action = atoi(stringAction);
-	if((action > 1 && admin != 1) || action < 1 || action > 4){
+	if((action > 3 && admin != 1) || action < 1 || action > 6){
 		printf("\nERREUR : Action inconnue...\n");
 		return -1;
 	}
@@ -268,12 +335,18 @@ int afficheMenu(int admin){
 		return ACTION_DECONNEXION;
 		break;
 	case 2:
-		return ACTION_AJOUTE_UTILISATEUR;
+		return ACTION_AJOUTE_ANNUAIRE;
 		break;
 	case 3:
-		return ACTION_MODIFIE_UTILISATEUR;
+		return ACTION_MODIFIE_ANNUAIRE;
 		break;
 	case 4:
+		return ACTION_AJOUTE_UTILISATEUR;
+		break;
+	case 5:
+		return ACTION_MODIFIE_UTILISATEUR;
+		break;
+	case 6:
 		return ACTION_SUPPRIME_UTILISATEUR;
 		break;
 	}

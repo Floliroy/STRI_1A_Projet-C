@@ -8,6 +8,87 @@
 hashMapUserString mapUtilisateurs; //Création de la map contennant tous les utilisateurs en variable globale
 
 /**
+ * Permet d'ajouter un nouvel annuaire a un utilisateur s'il en a pas deja un
+ * 
+ * @param userLogged L'utilisateur souhaitant ajouter son annuaire
+ **/
+void ajouteAnnuaire(utilisateur userLogged){
+	printf("     Entrée dans : ajouteAnnuaire\n");
+	char stringAnnuaire[BUFSIZ], retour[BUFSIZ];
+	//On construit le chemin de l'annuaire de l'utilisateur
+	sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged.nom, userLogged.prenom);
+
+	FILE* annuaire;
+	if((annuaire = fopen(stringAnnuaire, "r"))){
+		//Si on peut ouvrir le fichier c'est qu'il existe, on indique donc que l'utilisateur possède deja un annuaire
+		printf("Erreur, cet utilisateur possède déjà un annuaire.\n");
+		
+		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_EXISTANT);
+		Emission(retour);
+	}else{
+		//Sinon on lui crée un nouvel annuaire
+		annuaire = fopen(stringAnnuaire, "w");
+
+		sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
+		Emission(retour);
+	}
+
+	fclose(annuaire);
+	printf("     Sortie de : ajouteAnnuaire\n");
+}
+
+/**
+ * Permet d'ajouter un nouvel utilisateur a l'annuaire de l'utilisateur appelant le serveur
+ * 
+ * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à ajouter
+ * @param userLogged L'utilisateur souhaitant ajouter un utilisateur dans son annuaire
+ **/
+void modifieAnnuaire(hashMapStringString mapParameters, utilisateur userLogged){
+	printf("     Entrée dans : modifieAnnuaire\n");
+	char stringAnnuaire[BUFSIZ], retour[BUFSIZ];
+	//On construit le chemin de l'annuaire de l'utilisateur
+	sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged.nom, userLogged.prenom);
+
+	FILE* annuaire;
+	if((annuaire = fopen(stringAnnuaire, "r+"))){
+		//Si on peut ouvrir le fichier c'est qu'il existe, on ajoute donc le champ nécessaire
+		char *nom, *prenom, *droits;
+		if((nom = getFromHashMapStringString(&mapParameters, "nom")) == NULL ||
+		(prenom = getFromHashMapStringString(&mapParameters, "prenom")) == NULL ||
+		(droits = getFromHashMapStringString(&mapParameters, "droits")) == NULL){
+			printf("Erreur, données manquantes pour ajouter utilisateur à l'agenda.\n");
+
+			sprintf(retour, "%d \n", CODE_CHAMPS_MANQUANTS_INVALIDES);
+			Emission(retour);
+		}else{
+			utilisateur* user = getUserWithNomPrenom(&mapUtilisateurs, nom, prenom);
+			if(user == NULL){
+				printf("Erreur, utilisateur introuvable.\n");
+
+				sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_INTROUVABLE);
+				Emission(retour);
+			}else{
+				//On se place a la fin du fichier
+				fseek(annuaire, 0, SEEK_END);
+				//On écrit la ligne d'ajout de l'utilisateur
+				fprintf(annuaire, "%s,%s,%s\n", nom, prenom, droits);
+				printf(YEL "Utilisateur %s %s ajouté à l'annuaire de %s %s.\n" RESET, nom, prenom, userLogged.nom, userLogged.prenom);
+
+				sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
+				Emission(retour);
+			}
+		}
+		fclose(annuaire);
+	}else{
+		//Sinon on indique a l'utilisateur qu'il doit d'abord créer un son annuaire
+		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_INTROUVABLE);
+		Emission(retour);
+	}
+
+	printf("     Sortie de : modifieAnnuaire\n");
+}
+
+/**
  * Permet d'ajouter un nouvel utilisateur a mapUtilisateurs et au fichier csv (pour la sauvegarde)
  * 
  * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à ajouter
@@ -343,6 +424,12 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 				sprintf(retour, "%d \n", CODE_ACTION_IMPOSSIBLE);
 				Emission(retour);
 			}
+			break;
+		case ACTION_AJOUTE_ANNUAIRE:
+			ajouteAnnuaire(*userLogged);
+			break;
+		case ACTION_MODIFIE_ANNUAIRE:
+			modifieAnnuaire(mapParameters, *userLogged);
 			break;
 		}
 

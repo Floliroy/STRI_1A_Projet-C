@@ -52,7 +52,7 @@ void envoieRequeteFormatee(hashMapStringString mapParameters){
 	}
 	requete[strlen(requete) - 1] = '\0';
 
-	printf("J'envoie : %s\n", requete);
+	//printf("J'envoie : %s\n", requete);
 
 	char emission[BUFSIZ];
 	sprintf(emission, "GET /%s\n\n", requete);
@@ -106,7 +106,7 @@ int InitialisationAvecService(char *machine, char *service) {
 	}
 
 	freeaddrinfo(ressave);
-	printf("Connexion avec le serveur reussie.\n");
+	//printf("Connexion avec le serveur reussie.\n");
 
 	return 1;
 }
@@ -164,7 +164,7 @@ int Emission(char *message) {
         perror("Emission, probleme lors du send.");
         return 0;
 	}
-	printf("Emission de %d caracteres.\n", taille+1);
+	//printf("Emission de %d caracteres.\n", taille+1);
 	return 1;
 }
 
