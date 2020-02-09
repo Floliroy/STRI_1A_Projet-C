@@ -41,11 +41,15 @@ void connexion(){
 
 /**
  * Permet de déconnecter l'utilisateur actuellement connecté sur le serveur
+ * 
+ * @param show Permet de montrer ou non le message de déconnexion
  **/
-void deconnexion(){
+void deconnexion(int show){
 	hashMapStringString mapParameters= {.size = 0};
 
-	printf(RED "\nDéconnexion !\n" RESET);
+	if(show != 0){
+		printf(RED "\nDéconnexion !\n" RESET);
+	}
 
 	addToHashMapStringString(&mapParameters, "ACTION", "2");
 	envoieRequeteFormatee(mapParameters);
@@ -243,7 +247,7 @@ void aiguillageAction(int action){
 		connexion();
 		break;
 	case ACTION_DECONNEXION:
-		deconnexion();
+		deconnexion(1);
 		break;
 	case ACTION_AJOUTE_UTILISATEUR:
 		ajouteUtilisateur();
@@ -283,40 +287,40 @@ void aiguillageRetour(char* message, int* logged, int* admin){
 
 	switch (code){
 	case CODE_CONNEXION_REUSSI_ADMIN:
-		printf("	Vous vous êtes bien connecté en tant qu'admin.\n");
+		printf("\n	Vous vous êtes bien connecté en tant qu'admin.\n");
 		*logged = 1;
 		*admin = 1;
 		break;
 	case CODE_CONNEXION_REUSSI_USER:
-		printf("	Vous vous êtes bien connecté.\n");
+		printf("\n	Vous vous êtes bien connecté.\n");
 		*logged = 1;
 		*admin = 0;
 		break;
 	case CODE_DECONNEXION:
-		printf("	Vous vous êtes bien déconnecté.\n");
+		printf("\n	Vous vous êtes bien déconnecté.\n");
 		*logged = 0;
 		*admin = 0;
 		break;
 	case CODE_CONNEXION_PAS_OK:
-		printf("	Votre mot de passe ou login sont incorrects.\n");
+		printf("\n	Votre mot de passe ou login sont incorrects.\n");
 		break;
 	case CODE_ACTION_INCONNU:
-		printf("	L'action que vous souhaitez effectuer est inconnue.\n");
+		printf("\n	L'action que vous souhaitez effectuer est inconnue.\n");
 		break;
 	case CODE_ACTION_REUSSI:
-		printf("	L'action a bien été effectuée.\n");
+		printf("\n	L'action a bien été effectuée.\n");
 		break;
 	case CODE_ACTION_IMPOSSIBLE:
-		printf("	Vous n'avez pas les droits pour effectuer cette action.\n");
+		printf("\n	Vous n'avez pas les droits pour effectuer cette action.\n");
 		break;
 	case CODE_CHAMPS_MANQUANTS_INVALIDES:
-		printf("	Vous n'avez pas bien renseigner les champs nécessaire a cette action.\n");
+		printf("\n	Vous n'avez pas bien renseigner les champs nécessaire a cette action.\n");
 		break;
 	case CODE_USER_ANNUAIRE_EXISTANT:
-		printf("	La ressouce que vous souhaitez ajouter existe déjà.\n");
+		printf("\n	La ressouce que vous souhaitez ajouter existe déjà.\n");
 		break;
 	case CODE_USER_ANNUAIRE_INTROUVABLE:
-		printf("	La ressouce a laquelle vous souhaitez accéder est introuvable.\n");
+		printf("\n	La ressouce a laquelle vous souhaitez accéder est introuvable.\n");
 		break;
 	}
 }
@@ -389,6 +393,8 @@ int main() {
 	int admin = 0;
 	int logged = 0;
 
+	
+	deconnexion(0);
 	while(1){
 		if(logged == 0){
 			//Si on est pas connecté alors on essaye de se connecter

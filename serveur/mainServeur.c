@@ -12,11 +12,11 @@ hashMapUserString mapUtilisateurs; //Création de la map contennant tous les uti
  * 
  * @param userLogged L'utilisateur souhaitant ajouter son annuaire
  **/
-void creeAnnuaire(utilisateur userLogged){
+void creeAnnuaire(utilisateur* userLogged){
 	printf("     Entrée dans : creeAnnuaire\n");
 	char stringAnnuaire[BUFSIZ], retour[BUFSIZ];
 	//On construit le chemin de l'annuaire de l'utilisateur
-	sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged.nom, userLogged.prenom);
+	sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged->nom, userLogged->prenom);
 
 	FILE* annuaire;
 	if((annuaire = fopen(stringAnnuaire, "r"))){
@@ -28,7 +28,7 @@ void creeAnnuaire(utilisateur userLogged){
 	}else{
 		//Sinon on lui crée un nouvel annuaire
 		annuaire = fopen(stringAnnuaire, "w");
-		printf(YEL "Annuaire ajouté a l'utilisateur %s %s.\n" RESET, userLogged.nom, userLogged.prenom);
+		printf(YEL "Annuaire ajouté a l'utilisateur %s %s.\n" RESET, userLogged->nom, userLogged->prenom);
 
 		sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
 		Emission(retour);
@@ -44,11 +44,11 @@ void creeAnnuaire(utilisateur userLogged){
  * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à ajouter
  * @param userLogged L'utilisateur souhaitant ajouter un utilisateur dans son annuaire
  **/
-void ajouteDansAnnuaire(hashMapStringString mapParameters, utilisateur userLogged){
+void ajouteDansAnnuaire(hashMapStringString mapParameters, utilisateur* userLogged){
 	printf("     Entrée dans : ajouteDansAnnuaire\n");
 	char stringAnnuaire[BUFSIZ], retour[BUFSIZ];
 	//On construit le chemin de l'annuaire de l'utilisateur
-	sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged.nom, userLogged.prenom);
+	sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged->nom, userLogged->prenom);
 
 	FILE* annuaire;
 	if((annuaire = fopen(stringAnnuaire, "r+"))){
@@ -73,7 +73,7 @@ void ajouteDansAnnuaire(hashMapStringString mapParameters, utilisateur userLogge
 				fseek(annuaire, 0, SEEK_END);
 				//On écrit la ligne d'ajout de l'utilisateur
 				fprintf(annuaire, "%s,%s,%s\n", nom, prenom, droits);
-				printf(YEL "Utilisateur %s %s ajouté à l'annuaire de %s %s.\n" RESET, nom, prenom, userLogged.nom, userLogged.prenom);
+				printf(YEL "Utilisateur %s %s ajouté à l'annuaire de %s %s.\n" RESET, nom, prenom, userLogged->nom, userLogged->prenom);
 
 				sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
 				Emission(retour);
@@ -82,6 +82,7 @@ void ajouteDansAnnuaire(hashMapStringString mapParameters, utilisateur userLogge
 		fclose(annuaire);
 	}else{
 		//Sinon on indique a l'utilisateur qu'il doit d'abord créer un son annuaire
+		printf("Erreur, l'agenda de cet utilisateur n'existe pas.\n");
 		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_INTROUVABLE);
 		Emission(retour);
 	}
@@ -89,11 +90,17 @@ void ajouteDansAnnuaire(hashMapStringString mapParameters, utilisateur userLogge
 	printf("     Sortie de : ajouteDansAnnuaire\n");
 }
 
-void supprimeDeAnnuaire(hashMapStringString mapParameters, utilisateur userLogged){
+/**
+ * Permet de supprimer utilisateur de l'annuaire de l'utilisateur appelant le serveur
+ * 
+ * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à supprime
+ * @param userLogged L'utilisateur souhaitant supprime un utilisateur dans son annuaire
+ **/
+void supprimeDeAnnuaire(hashMapStringString mapParameters, utilisateur* userLogged){
 	printf("     Entrée dans : supprimeDeAnnuaire\n");
 	char stringAnnuaire[BUFSIZ], retour[BUFSIZ];
 	//On construit le chemin de l'annuaire de l'utilisateur
-	sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged.nom, userLogged.prenom);
+	sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged->nom, userLogged->prenom);
 
 	FILE* annuaire;
 	if((annuaire = fopen(stringAnnuaire, "r"))){
@@ -136,7 +143,7 @@ void supprimeDeAnnuaire(hashMapStringString mapParameters, utilisateur userLogge
 			remove(stringAnnuaire);
 			//On renomme notre fichier temporaire
 			rename("util/temp.csv", stringAnnuaire);
-			printf(YEL "Utilisateur %s %s supprimé de l'annuaire de %s %s.\n" RESET, nom, prenom, userLogged.nom, userLogged.prenom);
+			printf(YEL "Utilisateur %s %s supprimé de l'annuaire de %s %s.\n" RESET, nom, prenom, userLogged->nom, userLogged->prenom);
 
 			sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
 			Emission(retour);
@@ -488,13 +495,13 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 			}
 			break;
 		case ACTION_CREE_ANNUAIRE:
-			creeAnnuaire(*userLogged);
+			creeAnnuaire(userLogged);
 			break;
 		case ACTION_AJOUTE_DANS_ANNUAIRE:
-			ajouteDansAnnuaire(mapParameters, *userLogged);
+			ajouteDansAnnuaire(mapParameters, userLogged);
 			break;
 		case ACTION_SUPPRIME_DE_ANNUAIRE:
-			supprimeDeAnnuaire(mapParameters, *userLogged);
+			supprimeDeAnnuaire(mapParameters, userLogged);
 			break;
 		}
 
@@ -632,7 +639,6 @@ int main() {
 				if(login != NULL && password != NULL && action != NULL &&
 				strcmp(action,"1") == 0 && isMotDePasseValide(mapUtilisateurs, login, password) == 1){
 					//On crée alors notre utilisateur connecté
-					free(userLogged);
 					userLogged = malloc(sizeof(utilisateur));
 					userLogged = getUserWithLogin(&mapUtilisateurs, login);
 					logged = 1;
