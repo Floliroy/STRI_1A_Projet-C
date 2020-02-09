@@ -23,13 +23,14 @@ utilisateur* getUserWithNomPrenom(hashMapUserString* map, char* nom, char* preno
 utilisateur* getUserWithLogin(hashMapUserString* map, char* login);
 
 /**
- * Cherche la position du curseur dans le fichier mapUsers.csv pour être au début de la ligne de l'utilisateur recherché.
+ * Cherche la position du curseur dans un fichier .csv pour être au début de la ligne de l'utilisateur recherché.
  * 
  * @param nomParam Le nom de l'utilisateur recherché
  * @param prenomParam Le prenom de l'utilisateur recherché
+ * @param fichier Le nom du fichier où l'on va chercher l'utilisateur
  * @return Position du curseur.
  **/
-int getUserLineWithNomPrenom(char* nomParam, char* prenomParam);
+int getUserLineWithNomPrenom(char* nomParam, char* prenomParam, char* fichier);
 
 /**
  * Regarde si l'utilisateur passé en paramètre est administrateur.

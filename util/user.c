@@ -34,11 +34,11 @@ utilisateur* getUserWithLogin(hashMapUserString* map, char* login){
 	return NULL; //Retourne null si on ne trouve aucune correspondance
 }
 
-int getUserLineWithNomPrenom(char* nomParam, char* prenomParam){
+int getUserLineWithNomPrenom(char* nomParam, char* prenomParam, char* fichier){
 	printf("     Entrée dans : getUserLineWithNomPrenom\n");
 	
 	//Ouverture du fichier en lecture
-	FILE* csv = fopen("util/mapUsers.csv", "r");
+	FILE* csv = fopen(fichier, "r");
 	char nom[BUFSIZ], prenom[BUFSIZ];
 	char ligne[BUFSIZ];
 	int retour = 0;
