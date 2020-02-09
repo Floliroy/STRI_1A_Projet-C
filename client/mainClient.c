@@ -123,6 +123,18 @@ void supprimeAnnuaire(){
 }
 
 /**
+ * Permet de consulter un annuaire
+ **/
+void consulterAnnuaire(){
+	hashMapStringString mapParameters= {.size = 0};
+
+	printf(RED "\nConsulter son Annuaire !\n" RESET);
+
+	addToHashMapStringString(&mapParameters, "ACTION", "10");
+	envoieRequeteFormatee(mapParameters);
+}
+
+/**
  * Permet d'ajouter un nouvel utilisateur en demandant les champs nécessaires
  **/
 void ajouteUtilisateur(){
@@ -282,6 +294,9 @@ void aiguillageAction(int action){
 	case ACTION_SUPPRIME_ANNUAIRE:
 		supprimeAnnuaire();
 		break;
+	case ACTION_CONSULTE_ANNUAIRE:
+		consulterAnnuaire();
+		break;
 	}
 }
 
@@ -293,7 +308,6 @@ void aiguillageAction(int action){
  * @param admin L'état administrateur de l'utilisateur 
  **/
 void aiguillageRetour(char* message, int* logged, int* admin){
-	
 	char stringCode[BUFSIZ];
 	int cpt = 0;
 	recupereString(message, stringCode, &cpt, ' ');
@@ -337,6 +351,17 @@ void aiguillageRetour(char* message, int* logged, int* admin){
 	case CODE_USER_ANNUAIRE_INTROUVABLE:
 		printf("\n	La ressouce a laquelle vous souhaitez accéder est introuvable.\n");
 		break;
+	case CODE_CONSULTE_ANNUAIRE:
+		printf("\n	Voici les utilisateurs dans votre annuaire :\n");
+		for(int i=0 ; i<=strlen(message) ; i++){
+			if(message[i] == ',')  {
+				message[i] = '\n';
+			}
+		}
+		char* retourAffichage = message;
+		retourAffichage += 3;
+		printf("%s", retourAffichage);
+		break;
 	}
 }
 
@@ -356,6 +381,7 @@ int afficheMenu(int admin){
 	printf(BLU " 3. Supprimer son annuaire\n" RESET);
 	printf(BLU " 4. Ajouter utilisateur à son annuaire\n" RESET);
 	printf(BLU " 5. Supprimer utilisateur de son annuaire\n" RESET);
+	printf(BLU " 6. Consulter son annuaire\n" RESET);
 
 	//On affiche certains l'element seulement si l'utilisateur est admin
 	if(admin == 1){
@@ -368,7 +394,7 @@ int afficheMenu(int admin){
 	//On récupère l'action souhaitée
 	monLire(stringAction);
 	action = atoi(stringAction);
-	if((action > 5 && admin != 1) || action < 1 || action > 9){
+	if((action > 6 && admin != 1) || action < 1 || action > 9){
 		printf("\nERREUR : Action inconnue...\n");
 		return -1;
 	}
@@ -389,6 +415,9 @@ int afficheMenu(int admin){
 		break;
 	case 5:
 		return ACTION_SUPPRIME_DE_ANNUAIRE;
+		break;
+	case 6:
+		return ACTION_CONSULTE_ANNUAIRE;
 		break;
 	case 7:
 		return ACTION_AJOUTE_UTILISATEUR;

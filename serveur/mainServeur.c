@@ -82,7 +82,7 @@ void ajouteDansAnnuaire(hashMapStringString mapParameters, utilisateur* userLogg
 		fclose(annuaire);
 	}else{
 		//Sinon on indique a l'utilisateur qu'il doit d'abord créer un son annuaire
-		printf("Erreur, l'agenda de cet utilisateur n'existe pas.\n");
+		printf("Erreur, l'annuaire de cet utilisateur n'existe pas.\n");
 		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_INTROUVABLE);
 		Emission(retour);
 	}
@@ -150,6 +150,7 @@ void supprimeDeAnnuaire(hashMapStringString mapParameters, utilisateur* userLogg
 		}
 	}else{
 		//Sinon on indique a l'utilisateur qu'il doit d'abord créer un son annuaire
+		printf("Erreur, l'annuaire de cet utilisateur n'existe pas.\n");
 		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_INTROUVABLE);
 		Emission(retour);
 	}
@@ -175,6 +176,57 @@ void supprimeAnnuaire(utilisateur* userLogged){
 	Emission(retour);
 
 	printf("     Sortie de : supprimeAnnuaire\n");
+}
+
+/**
+ * Permet de consulter son annuaire
+ * 
+ * @param userLogged L'utilisateur souhaitant consulter son annuaire
+ **/
+void consulteAnnuaire(utilisateur* userLogged){
+	printf("     Entrée dans : consulteAnnuaire\n");
+	char stringAnnuaire[BUFSIZ], retour[BUFSIZ];
+	//On construit le chemin de l'annuaire de l'utilisateur
+	sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged->nom, userLogged->prenom);
+
+	FILE* annuaire;
+	if((annuaire = fopen(stringAnnuaire, "r"))){
+		sprintf(retour, "%d ,", CODE_CONSULTE_ANNUAIRE);
+
+		//Si on peut ouvrir le fichier c'est qu'il existe on va donc renvoyer la liste des utilisateurs
+		char nom[BUFSIZ], prenom[BUFSIZ], finLigne[BUFSIZ];
+		char ligne[BUFSIZ];
+
+		//On récupère les valeurs ligne par ligne (donc utilisateur par utilisateur)
+		while(fgets(ligne, BUFSIZ, annuaire) != NULL){
+			int cpt = 0;
+			//On extrait les deux champs de la ligne
+			recupereString(ligne, nom, &cpt, ',');
+			recupereString(ligne, prenom, &cpt, ',');
+			recupereString(ligne, finLigne, &cpt, '\n');
+
+			//On stocke les valeurs dans les champs de l'utilisateur
+			utilisateur* user = getUserWithNomPrenom(&mapUtilisateurs, nom, prenom);
+			char champsUtilisateur[BUFSIZ];
+			//sprintf(champsUtilisateur, "%s %s %s %s %s %s %d %s %s\n", user->nom, user->prenom, user->mail, user->adressePostale, user->numTel, user->remarque, user->age, user->login, user->password);
+			sprintf(champsUtilisateur, "%s %s %s,", user->nom, user->prenom, user->mail);
+			strcat(retour, champsUtilisateur);
+		}
+		strcat(retour, "\n");
+		printf(YEL "Consultation de l'annuaire de %s %s terminé.\n" RESET, userLogged->nom, userLogged->prenom);
+		//On ferme le fichier precedemment ouvert
+		fclose(annuaire);
+		
+		Emission(retour);
+	}else{
+		//Sinon on indique a l'utilisateur qu'il doit d'abord créer un son annuaire
+		printf("Erreur, l'annuaire de cet utilisateur n'existe pas.\n");
+		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_INTROUVABLE);
+		Emission(retour);
+	}
+
+	fclose(annuaire);
+	printf("     Sortie de : consulteAnnuaire\n");
 }
 
 /**
@@ -525,6 +577,9 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 			break;
 		case ACTION_SUPPRIME_ANNUAIRE:
 			supprimeAnnuaire(userLogged);
+			break;
+		case ACTION_CONSULTE_ANNUAIRE:
+			consulteAnnuaire(userLogged);
 			break;
 		}
 

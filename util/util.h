@@ -27,6 +27,8 @@
 #define CODE_USER_ANNUAIRE_EXISTANT 31
 #define CODE_USER_ANNUAIRE_INTROUVABLE 32
 
+#define CODE_CONSULTE_ANNUAIRE 40
+
 //Couleurs pour les printf en console
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
