@@ -158,6 +158,26 @@ void supprimeDeAnnuaire(hashMapStringString mapParameters, utilisateur* userLogg
 }
 
 /**
+ * Permet de supprime un annuaire a un utilisateur
+ * 
+ * @param userLogged L'utilisateur souhaitant ajouter son annuaire
+ **/
+void supprimeAnnuaire(utilisateur* userLogged){
+	printf("     Entrée dans : supprimeAnnuaire\n");
+	char stringAnnuaire[BUFSIZ], retour[BUFSIZ];
+	//On construit le chemin de l'annuaire de l'utilisateur
+	sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged->nom, userLogged->prenom);
+
+	remove(stringAnnuaire);
+	printf(YEL "Annuaire de l'utilisateur %s %s supprimé.\n" RESET, userLogged->nom, userLogged->prenom);
+
+	sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
+	Emission(retour);
+
+	printf("     Sortie de : supprimeAnnuaire\n");
+}
+
+/**
  * Permet d'ajouter un nouvel utilisateur a mapUtilisateurs et au fichier csv (pour la sauvegarde)
  * 
  * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à ajouter
@@ -503,10 +523,13 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 		case ACTION_SUPPRIME_DE_ANNUAIRE:
 			supprimeDeAnnuaire(mapParameters, userLogged);
 			break;
+		case ACTION_SUPPRIME_ANNUAIRE:
+			supprimeAnnuaire(userLogged);
+			break;
 		}
 
 		//Si on ne connait pas l'action souhaitée
-		if(actionCod < 1 || actionCod > 10){
+		if(actionCod < 2 || actionCod > 10){
 			sprintf(retour, "%d \n", CODE_ACTION_INCONNU);
 			Emission(retour);
 		}

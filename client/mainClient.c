@@ -61,7 +61,7 @@ void deconnexion(int show){
 void creeAnnuaire(){
 	hashMapStringString mapParameters= {.size = 0};
 
-	printf(RED "\nAjout Annuaire !\n" RESET);
+	printf(RED "\nAjout d'Annuaire !\n" RESET);
 
 	addToHashMapStringString(&mapParameters, "ACTION", "6");
 	envoieRequeteFormatee(mapParameters);
@@ -107,6 +107,18 @@ void supprimeDeAnnuaire(){
 	addToHashMapStringString(&mapParameters, "ACTION", "8");
 	addToHashMapStringString(&mapParameters, "nom", nom);
 	addToHashMapStringString(&mapParameters, "prenom", prenom);
+	envoieRequeteFormatee(mapParameters);
+}
+
+/**
+ * Permet de supprimer un annuaire
+ **/
+void supprimeAnnuaire(){
+	hashMapStringString mapParameters= {.size = 0};
+
+	printf(RED "\nSuppresion d'Annuaire !\n" RESET);
+
+	addToHashMapStringString(&mapParameters, "ACTION", "9");
 	envoieRequeteFormatee(mapParameters);
 }
 
@@ -267,6 +279,9 @@ void aiguillageAction(int action){
 	case ACTION_SUPPRIME_DE_ANNUAIRE:
 		supprimeDeAnnuaire();
 		break;
+	case ACTION_SUPPRIME_ANNUAIRE:
+		supprimeAnnuaire();
+		break;
 	}
 }
 
@@ -337,22 +352,23 @@ int afficheMenu(int admin){
 	//On affiche le menu
 	printf(RED "\nBienvenue sur le Client de Floliroy :\n" RESET);
 	printf(BLU " 1. Se déconnecter\n" RESET);
-	printf(BLU " 2. Créer un annuraire\n" RESET);
-	printf(BLU " 3. Ajouter utilisateur à son annuaire\n" RESET);
-	printf(BLU " 4. Supprimer utilisateur de son annuaire\n" RESET);
+	printf(BLU " 2. Créer un annuaire\n" RESET);
+	printf(BLU " 3. Supprimer son annuaire\n" RESET);
+	printf(BLU " 4. Ajouter utilisateur à son annuaire\n" RESET);
+	printf(BLU " 5. Supprimer utilisateur de son annuaire\n" RESET);
 
 	//On affiche certains l'element seulement si l'utilisateur est admin
 	if(admin == 1){
-		printf(BLU " 5. Ajouter un utilisateur\n" RESET);
-		printf(BLU " 6. Modifier un utilisateur\n" RESET);
-		printf(BLU " 7. Supprimer un utilisateur\n" RESET);
+		printf(BLU " 7. Ajouter un utilisateur\n" RESET);
+		printf(BLU " 8. Modifier un utilisateur\n" RESET);
+		printf(BLU " 9. Supprimer un utilisateur\n" RESET);
 	}
 
 	printf("\nEntrer le numéro de l'action souhaitée : ");
 	//On récupère l'action souhaitée
 	monLire(stringAction);
 	action = atoi(stringAction);
-	if((action > 4 && admin != 1) || action < 1 || action > 7){
+	if((action > 5 && admin != 1) || action < 1 || action > 9){
 		printf("\nERREUR : Action inconnue...\n");
 		return -1;
 	}
@@ -366,18 +382,21 @@ int afficheMenu(int admin){
 		return ACTION_CREE_ANNUAIRE;
 		break;
 	case 3:
-		return ACTION_AJOUTE_DANS_ANNUAIRE;
+		return ACTION_SUPPRIME_ANNUAIRE;
 		break;
 	case 4:
-		return ACTION_SUPPRIME_DE_ANNUAIRE;
+		return ACTION_AJOUTE_DANS_ANNUAIRE;
 		break;
 	case 5:
-		return ACTION_AJOUTE_UTILISATEUR;
-		break;
-	case 6:
-		return ACTION_MODIFIE_UTILISATEUR;
+		return ACTION_SUPPRIME_DE_ANNUAIRE;
 		break;
 	case 7:
+		return ACTION_AJOUTE_UTILISATEUR;
+		break;
+	case 8:
+		return ACTION_MODIFIE_UTILISATEUR;
+		break;
+	case 9:
 		return ACTION_SUPPRIME_UTILISATEUR;
 		break;
 	}
