@@ -225,7 +225,6 @@ void consulteAnnuaire(utilisateur* userLogged){
 		Emission(retour);
 	}
 
-	fclose(annuaire);
 	printf("     Sortie de : consulteAnnuaire\n");
 }
 
