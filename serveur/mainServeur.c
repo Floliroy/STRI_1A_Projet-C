@@ -383,6 +383,7 @@ int modifieUtilisateur(hashMapStringString mapParameters){
 	if((age = getFromHashMapStringString(&mapParameters, "age")) != NULL){
 		user->age = atoi(age);
 	}else{
+		age = (char*) malloc(4 * sizeof(char));
 		sprintf(age,"%d",user->age);
 	}
 	if((login = getFromHashMapStringString(&mapParameters, "login")) != NULL){
@@ -396,9 +397,12 @@ int modifieUtilisateur(hashMapStringString mapParameters){
 		password = user->password;
 	}
 
+	printf("%s\n", adressePostale);
+
 	//On modifie ensuite le fichier csv avec les nouvelles données
 	int pos = getUserLineWithNomPrenom(nom, prenom, "util/mapUsers.csv");
 	int cpt = 0, copie = 1;
+
 
 	//On crée un fichier temporaire pour copier tout le fichier actuel sauf la ligne de l'utilisateur a modifier
 	FILE* csv = fopen("util/mapUsers.csv", "r");

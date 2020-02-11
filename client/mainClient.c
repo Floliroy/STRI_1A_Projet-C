@@ -15,8 +15,10 @@ int monLire(char chaine[BUFSIZ]){
 	}    
 	
 	//On enleve le stockage du retour à la ligne   
-	taille = strlen(chaine);    
-	chaine[taille - 1] = '\0';
+	taille = strlen(chaine); 
+	if(chaine[taille - 1] == '\n'){
+		chaine[taille - 1] = '\0';
+	}   
     return taille;
 }
 

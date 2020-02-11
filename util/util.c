@@ -7,8 +7,8 @@
 
 void addToHashMapStringString(hashMapStringString* map, char* key, char* value){
 	//Allocation dynamique de la clé et de la valeur
-	char* newKey = malloc(strlen(key) * sizeof(char));
-	char* newValue = malloc(strlen(value) * sizeof(char));
+	char* newKey = malloc((strlen(key) + 1) * sizeof(char));
+	char* newValue = malloc((strlen(value) + 1) * sizeof(char));
 	strcpy(newKey, key);
 	strcpy(newValue, value);
 
@@ -33,24 +33,24 @@ char* getFromHashMapStringString(hashMapStringString* map, char* key){
 void addToHashMapUserString(hashMapUserString* map, utilisateur key, char* value){
 	//Allocation dynamique des differents champs de l'utilisateur
 	utilisateur* newKey = malloc(sizeof(key));
-	char* newValue = malloc(strlen(value) * sizeof(char));
-	newKey->nom = malloc(strlen(key.nom) * sizeof(char));
+	char* newValue = malloc((strlen(value) + 1) * sizeof(char));
+	newKey->nom = malloc((strlen(key.nom) + 1) * sizeof(char));
 	strcpy(newKey->nom,key.nom);
-	newKey->prenom = malloc(strlen(key.prenom) * sizeof(char));
+	newKey->prenom = malloc((strlen(key.prenom) + 1) * sizeof(char));
 	strcpy(newKey->prenom,key.prenom);
-	newKey->mail = malloc(strlen(key.mail) * sizeof(char));
+	newKey->mail = malloc((strlen(key.mail) + 1) * sizeof(char));
 	strcpy(newKey->mail,key.mail);
-	newKey->adressePostale = malloc(strlen(key.adressePostale) * sizeof(char));
+	newKey->adressePostale = malloc((strlen(key.adressePostale) + 1) * sizeof(char));
 	strcpy(newKey->adressePostale,key.adressePostale);
-	newKey->numTel = malloc(strlen(key.numTel) * sizeof(char));
+	newKey->numTel = malloc((strlen(key.numTel) + 1) * sizeof(char));
 	strcpy(newKey->numTel,key.numTel);
-	newKey->remarque = malloc(strlen(key.remarque) * sizeof(char));
+	newKey->remarque = malloc((strlen(key.remarque) + 1) * sizeof(char));
 	strcpy(newKey->remarque,key.remarque);
 	newKey->age = key.age;
 	strcpy(newValue, value);
-	newKey->login = malloc(strlen(key.login) * sizeof(char));
+	newKey->login = malloc((strlen(key.login) + 1) * sizeof(char));
 	strcpy(newKey->login,key.login);
-	newKey->password = malloc(strlen(key.password) * sizeof(char));
+	newKey->password = malloc((strlen(key.password) + 1) * sizeof(char));
 	strcpy(newKey->password,key.password);
 
 	//On stocke les valeurs dans la map
