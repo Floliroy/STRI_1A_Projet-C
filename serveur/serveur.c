@@ -77,7 +77,7 @@ int extraitRequete(char *requete, hashMapStringString* mapParameters){
 					cpt++;
 
 					//L'& marque le début d'un nouveau paramètre et l'espace la fin des parametres
-					while(requete[i+cpt] != '&' && requete[i+cpt] != ' ' && requete[i+cpt] != '\n'){
+					while(requete[i+cpt] != '&' /*&& requete[i+cpt] != ' '*/ && requete[i+cpt] != '\n'){
 						value[iString] = requete[i+cpt];
                     	iString++;
                         cpt++;

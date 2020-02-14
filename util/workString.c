@@ -69,7 +69,7 @@ void demandeParam(char* nomParam, hashMapStringString* mapParameters, int appart
 	monLire(param);
     //On remplace les virgules par des espaces pour ne pas casser le csv du serveur
     for(int i=0 ; i<=strlen(param) ; i++){
-        if(param[i] == ',')  {
+        if(param[i] == ',' || param[i] == '=' || param[i] == '&')  {
             param[i] = ' ';
         }
     }

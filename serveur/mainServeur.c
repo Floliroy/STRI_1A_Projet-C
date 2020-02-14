@@ -228,10 +228,11 @@ void consulteAnnuaire(hashMapStringString mapParameters, utilisateur* userLogged
 
 			//On stocke les valeurs dans les champs de l'utilisateur
 			utilisateur* user = getUserWithNomPrenom(&mapUtilisateurs, nom, prenom);
-			char champsUtilisateur[BUFSIZ];
-			//sprintf(champsUtilisateur, "%s %s %s %s %s %s %d %s %s\n", user->nom, user->prenom, user->mail, user->adressePostale, user->numTel, user->remarque, user->age, user->login, user->password);
-			sprintf(champsUtilisateur, "%s     %s     %s,", user->nom, user->prenom, user->mail);
-			strcat(retour, champsUtilisateur);
+			if(user != NULL){
+				char champsUtilisateur[BUFSIZ];
+				sprintf(champsUtilisateur, "%s     %s     %s,", user->nom, user->prenom, user->mail);
+				strcat(retour, champsUtilisateur);
+			}
 		}
 		strcat(retour, "\n");
 		

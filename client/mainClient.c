@@ -56,6 +56,7 @@ void ajouteDansAnnuaire(){
 	addToHashMapStringString(&mapParameters, "ACTION", "7");
 	demandeParam("nom", &mapParameters, 0, 0);
 	demandeParam("prenom", &mapParameters, 0, 0);
+	printf(RED "\nDroits (0 ou 1) ...\n" RESET);
 	demandeParam("droits", &mapParameters, -1, 0);
 	envoieRequeteFormatee(mapParameters);
 }
