@@ -4,8 +4,37 @@
 #include "serveur.h"
 #include "../util/util.h"
 #include "../util/user.h"
+#include "../util/workString.h"
 
 hashMapUserString mapUtilisateurs; //Création de la map contennant tous les utilisateurs en variable globale
+
+void connexion(hashMapStringString mapParameters, utilisateur* userLogged, int* logged){
+	printf("Attente de connexion...\n");
+
+	char* login = getFromHashMapStringString(&mapParameters, "login");
+	char* password = getFromHashMapStringString(&mapParameters, "password");
+	char* action = getFromHashMapStringString(&mapParameters, "ACTION");
+
+	//Si on a une demande de connexion et que le login et mot de passe sont valides
+	if(login != NULL && password != NULL && action != NULL &&
+	strcmp(action,"1") == 0 && isMotDePasseValide(mapUtilisateurs, login, password) == 1){
+		//On crée alors notre utilisateur connecté
+		utilisateur* user = malloc(sizeof(utilisateur));
+		user = getUserWithLogin(&mapUtilisateurs, login);
+		*logged = 1;
+		printf(RED "Connexion réussie avec le login: \"%s\".\n" RESET, login);
+
+		//On emet si l'utilisateur est un admin ou non
+		if(isUserAdmin(mapUtilisateurs, user) == 1){
+			envoieRetour(CODE_CONNEXION_REUSSI_ADMIN);
+		}else{
+			envoieRetour(CODE_CONNEXION_REUSSI_USER);
+		}
+		*userLogged = *user;
+	}else{
+		envoieRetour(CODE_CONNEXION_PAS_OK);
+	}
+}
 
 /**
  * Permet d'ajouter un nouvel annuaire a un utilisateur s'il en a pas deja un
@@ -14,7 +43,7 @@ hashMapUserString mapUtilisateurs; //Création de la map contennant tous les uti
  **/
 void creeAnnuaire(utilisateur* userLogged){
 	printf("     Entrée dans : creeAnnuaire\n");
-	char stringAnnuaire[BUFSIZ], retour[BUFSIZ];
+	char stringAnnuaire[BUFSIZ];
 	//On construit le chemin de l'annuaire de l'utilisateur
 	sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged->nom, userLogged->prenom);
 
@@ -22,16 +51,12 @@ void creeAnnuaire(utilisateur* userLogged){
 	if((annuaire = fopen(stringAnnuaire, "r"))){
 		//Si on peut ouvrir le fichier c'est qu'il existe, on indique donc que l'utilisateur possède deja un annuaire
 		printf("Erreur, cet utilisateur possède déjà un annuaire.\n");
-		
-		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_EXISTANT);
-		Emission(retour);
+		envoieRetour(CODE_USER_ANNUAIRE_EXISTANT);
 	}else{
 		//Sinon on lui crée un nouvel annuaire
 		annuaire = fopen(stringAnnuaire, "w");
 		printf(YEL "Annuaire ajouté a l'utilisateur %s %s.\n" RESET, userLogged->nom, userLogged->prenom);
-
-		sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
-		Emission(retour);
+		envoieRetour(CODE_ACTION_REUSSI);
 	}
 
 	fclose(annuaire);
@@ -46,7 +71,7 @@ void creeAnnuaire(utilisateur* userLogged){
  **/
 void ajouteDansAnnuaire(hashMapStringString mapParameters, utilisateur* userLogged){
 	printf("     Entrée dans : ajouteDansAnnuaire\n");
-	char stringAnnuaire[BUFSIZ], retour[BUFSIZ];
+	char stringAnnuaire[BUFSIZ];
 	//On construit le chemin de l'annuaire de l'utilisateur
 	sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged->nom, userLogged->prenom);
 
@@ -58,33 +83,31 @@ void ajouteDansAnnuaire(hashMapStringString mapParameters, utilisateur* userLogg
 		(prenom = getFromHashMapStringString(&mapParameters, "prenom")) == NULL ||
 		(droits = getFromHashMapStringString(&mapParameters, "droits")) == NULL){
 			printf("Erreur, données manquantes pour ajouter utilisateur à l'agenda.\n");
-
-			sprintf(retour, "%d \n", CODE_CHAMPS_MANQUANTS_INVALIDES);
-			Emission(retour);
+			envoieRetour(CODE_CHAMPS_MANQUANTS_INVALIDES);
 		}else{
 			utilisateur* user = getUserWithNomPrenom(&mapUtilisateurs, nom, prenom);
 			if(user == NULL){
+				//Si l'utilisateur n'existe pas
 				printf("Erreur, utilisateur introuvable.\n");
-
-				sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_INTROUVABLE);
-				Emission(retour);
+				envoieRetour(CODE_USER_ANNUAIRE_INTROUVABLE);
+			}else if (getUserLineWithNomPrenom(nom, prenom, stringAnnuaire) != -1){
+				//Si l'utilisateur fait deja partie du fichier
+				printf("Erreur, utilisateur deja present.\n");
+				envoieRetour(CODE_USER_ANNUAIRE_EXISTANT);
 			}else{
-				//On se place a la fin du fichier
+				//Sinon on se place a la fin du fichier
 				fseek(annuaire, 0, SEEK_END);
 				//On écrit la ligne d'ajout de l'utilisateur
 				fprintf(annuaire, "%s,%s,%s\n", nom, prenom, droits);
 				printf(YEL "Utilisateur %s %s ajouté à l'annuaire de %s %s.\n" RESET, nom, prenom, userLogged->nom, userLogged->prenom);
-
-				sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
-				Emission(retour);
+				envoieRetour(CODE_ACTION_REUSSI);
 			}
 		}
 		fclose(annuaire);
 	}else{
 		//Sinon on indique a l'utilisateur qu'il doit d'abord créer un son annuaire
 		printf("Erreur, l'annuaire de cet utilisateur n'existe pas.\n");
-		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_INTROUVABLE);
-		Emission(retour);
+		envoieRetour(CODE_USER_ANNUAIRE_INTROUVABLE);
 	}
 
 	printf("     Sortie de : ajouteDansAnnuaire\n");
@@ -98,7 +121,7 @@ void ajouteDansAnnuaire(hashMapStringString mapParameters, utilisateur* userLogg
  **/
 void supprimeDeAnnuaire(hashMapStringString mapParameters, utilisateur* userLogged){
 	printf("     Entrée dans : supprimeDeAnnuaire\n");
-	char stringAnnuaire[BUFSIZ], retour[BUFSIZ];
+	char stringAnnuaire[BUFSIZ];
 	//On construit le chemin de l'annuaire de l'utilisateur
 	sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged->nom, userLogged->prenom);
 
@@ -110,32 +133,15 @@ void supprimeDeAnnuaire(hashMapStringString mapParameters, utilisateur* userLogg
 		(prenom = getFromHashMapStringString(&mapParameters, "prenom")) == NULL){
 			fclose(annuaire);
 			printf("Erreur, données manquantes pour supprimer l'utilisateur de l'agenda.\n");
-
-			sprintf(retour, "%d \n", CODE_CHAMPS_MANQUANTS_INVALIDES);
-			Emission(retour);
+			envoieRetour(CODE_CHAMPS_MANQUANTS_INVALIDES);
 		}else{
 			int pos = getUserLineWithNomPrenom(nom, prenom, stringAnnuaire);
-			int cpt = 0, copie = 1;
 
 			//On crée un fichier temporaire pour copier tout le fichier actuel sauf la ligne de l'utilisateur a supprimer
 			FILE* temp = fopen("util/temp.csv", "w");
-			char c;
+			//On copie notre fichier sauf la ligne de l'utilisateur
+			copieSaufLigne(annuaire, temp, pos);
 
-			//Tant qu'on est pas a la fin du fichier
-			while((c = getc(annuaire)) != EOF){
-				cpt++;
-				//Si on arrive a la ligne de l'utilisateur a supprimer on arrete de copier jusqu'a ...
-				if (cpt == pos+1)
-					copie = 0;
-
-				if(copie == 1){
-					putc(c, temp);
-				}
-
-				//... on arrete de copier jusqu'a avoir un retour a la ligne (marquant la fin des données de l'utilisateur)
-				if(c == '\n')
-					copie = 1;
-			}
 			//On ferme les fichiers ouvert
 			fclose(annuaire);
 			fclose(temp);
@@ -144,15 +150,12 @@ void supprimeDeAnnuaire(hashMapStringString mapParameters, utilisateur* userLogg
 			//On renomme notre fichier temporaire
 			rename("util/temp.csv", stringAnnuaire);
 			printf(YEL "Utilisateur %s %s supprimé de l'annuaire de %s %s.\n" RESET, nom, prenom, userLogged->nom, userLogged->prenom);
-
-			sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
-			Emission(retour);
+			envoieRetour(CODE_ACTION_REUSSI);
 		}
 	}else{
 		//Sinon on indique a l'utilisateur qu'il doit d'abord créer un son annuaire
 		printf("Erreur, l'annuaire de cet utilisateur n'existe pas.\n");
-		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_INTROUVABLE);
-		Emission(retour);
+		envoieRetour(CODE_USER_ANNUAIRE_INTROUVABLE);
 	}
 
 	printf("     Sortie de : supprimeDeAnnuaire\n");
@@ -165,15 +168,13 @@ void supprimeDeAnnuaire(hashMapStringString mapParameters, utilisateur* userLogg
  **/
 void supprimeAnnuaire(utilisateur* userLogged){
 	printf("     Entrée dans : supprimeAnnuaire\n");
-	char stringAnnuaire[BUFSIZ], retour[BUFSIZ];
+	char stringAnnuaire[BUFSIZ];
 	//On construit le chemin de l'annuaire de l'utilisateur
 	sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged->nom, userLogged->prenom);
 
 	remove(stringAnnuaire);
 	printf(YEL "Annuaire de l'utilisateur %s %s supprimé.\n" RESET, userLogged->nom, userLogged->prenom);
-
-	sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
-	Emission(retour);
+	envoieRetour(CODE_ACTION_REUSSI);
 
 	printf("     Sortie de : supprimeAnnuaire\n");
 }
@@ -221,8 +222,7 @@ void consulteAnnuaire(utilisateur* userLogged){
 	}else{
 		//Sinon on indique a l'utilisateur qu'il doit d'abord créer un son annuaire
 		printf("Erreur, l'annuaire de cet utilisateur n'existe pas.\n");
-		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_INTROUVABLE);
-		Emission(retour);
+		envoieRetour(CODE_USER_ANNUAIRE_INTROUVABLE);
 	}
 
 	printf("     Sortie de : consulteAnnuaire\n");
@@ -240,7 +240,6 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	char *nom, *prenom, *mail, *adressePostale, *numTel, *remarque, *age, *login, *password;
 
 	utilisateur newUtilisateur;
-	char retour[BUFSIZ];
 	
 	//Si les informations obligatoires (nom, prenom, adresse mail, login, password) sont nulles alors on ne peut pas ajouter un nouvel utilisateur
 	if((nom = getFromHashMapStringString(&mapParameters, "nom")) == NULL ||
@@ -249,9 +248,7 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	(login = getFromHashMapStringString(&mapParameters, "login")) == NULL ||
 	(password = getFromHashMapStringString(&mapParameters, "password")) == NULL){
 		printf("Erreur, données manquantes pour ajouter un nouvel utilisateur.\n");
-
-		sprintf(retour, "%d \n", CODE_CHAMPS_MANQUANTS_INVALIDES);
-		Emission(retour);
+		envoieRetour(CODE_CHAMPS_MANQUANTS_INVALIDES);
 		return 0;
 	}else{
 		newUtilisateur.nom = nom;
@@ -265,17 +262,13 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	utilisateur* user = getUserWithNomPrenom(&mapUtilisateurs, nom, prenom);
 	if(user != NULL){
 		printf("Erreur, cet utilisateur existe deja.\n");
-		
-		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_EXISTANT);
-		Emission(retour);
+		envoieRetour(CODE_USER_ANNUAIRE_EXISTANT);
 		return 0;
 	}
 	user = getUserWithLogin(&mapUtilisateurs, login);
 	if(user != NULL){
 		printf("Erreur, cet utilisateur existe deja.\n");
-		
-		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_EXISTANT);
-		Emission(retour);
+		envoieRetour(CODE_USER_ANNUAIRE_EXISTANT);
 		return 0;
 	}
 
@@ -319,9 +312,8 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	fclose(csv);
 
 	printf(YEL "Utilisateur %s %s ajouté.\n" RESET, nom, prenom);
+	envoieRetour(CODE_ACTION_REUSSI);
 
-	sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
-	Emission(retour);
 	printf("     Sortie de : ajouteUtilisateur\n");
 	return 1;
 }
@@ -335,16 +327,12 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 int modifieUtilisateur(hashMapStringString mapParameters){
 	printf("     Entrée dans : modifieUtilisateur\n");
 	char *nom, *prenom, *mail, *adressePostale, *numTel, *remarque, *age, *admin, *login, *password;
-
-	char retour[BUFSIZ];
 	
 	//Si on n'a ni le nom ni le prenom alors on ne peut pas savoir quel utilisateur modifier
 	if((nom = getFromHashMapStringString(&mapParameters, "nom")) == NULL ||
 	(prenom = getFromHashMapStringString(&mapParameters, "prenom")) == NULL){
 		printf("Erreur, données manquantes pour modifier un utilisateur.\n");
-
-		sprintf(retour, "%d \n", CODE_CHAMPS_MANQUANTS_INVALIDES);
-		Emission(retour);
+		envoieRetour(CODE_CHAMPS_MANQUANTS_INVALIDES);
 		return 0;
 	}
 
@@ -352,9 +340,7 @@ int modifieUtilisateur(hashMapStringString mapParameters){
 	utilisateur* user = getUserWithNomPrenom(&mapUtilisateurs ,nom, prenom);
 	if(user == NULL){
 		printf("Erreur, utilisateur introuvable.\n");
-
-		sprintf(retour, "%d \n", CODE_USER_ANNUAIRE_INTROUVABLE);
-		Emission(retour);
+		envoieRetour(CODE_USER_ANNUAIRE_INTROUVABLE);
 		return 0;
 	}
 	admin = getFromHashMapUserString(&mapUtilisateurs, user);
@@ -437,9 +423,8 @@ int modifieUtilisateur(hashMapStringString mapParameters){
 	rename("util/temp.csv", "util/mapUsers.csv");
 
 	printf(YEL "Utilisateur %s %s modifié.\n" RESET, nom, prenom);
+	envoieRetour(CODE_ACTION_REUSSI);
 
-	sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
-	Emission(retour);
 	printf("     Sortie de : modifieUtilisateur\n");
 	return 1;
 }
@@ -454,15 +439,11 @@ int supprimeUtilisateur(hashMapStringString mapParameters){
 	printf("     Entrée dans : supprimeUtilisateur\n");
 	char *nom, *prenom;
 
-	char retour[BUFSIZ];
-
 	//Si on n'a ni le nom ni le prenom alors on ne peut pas savoir quel utilisateur supprimer
 	if((nom = getFromHashMapStringString(&mapParameters, "nom")) == NULL ||
 	(prenom = getFromHashMapStringString(&mapParameters, "prenom")) == NULL){
 		printf("Erreur, données manquantes pour supprimer un utilisateur.\n");
-
-		sprintf(retour, "%d \n", CODE_CHAMPS_MANQUANTS_INVALIDES);
-		Emission(retour);
+		envoieRetour(CODE_CHAMPS_MANQUANTS_INVALIDES);
 		return 0;
 	}
 	
@@ -480,28 +461,13 @@ int supprimeUtilisateur(hashMapStringString mapParameters){
 
 	//Puis on le supprime du fichier csv
 	int pos = getUserLineWithNomPrenom(nom, prenom, "util/mapUsers.csv");
-	int cpt = 0, copie = 1;
-
 	//On crée un fichier temporaire pour copier tout le fichier actuel sauf la ligne de l'utilisateur a supprimer
 	FILE* csv = fopen("util/mapUsers.csv", "r");
     FILE* temp = fopen("util/temp.csv", "w");
-	char c;
 
-	//Tant qu'on est pas a la fin du fichier
-	while((c = getc(csv)) != EOF){
-		cpt++;
-		//Si on arrive a la ligne de l'utilisateur a supprimer on arrete de copier jusqu'a ...
-		if (cpt == pos+1)
-			copie = 0;
+	//On copie tout notre fichier sauf la ligne de l'utilisateur
+	copieSaufLigne(csv, temp, pos);
 
-		if(copie == 1){
-			putc(c, temp);
-		}
-
-		//... on arrete de copier jusqu'a avoir un retour a la ligne (marquant la fin des données de l'utilisateur)
-		if(c == '\n')
-			copie = 1;
-	}
 	//On ferme les fichiers ouvert
 	fclose(csv);
 	fclose(temp);
@@ -511,9 +477,8 @@ int supprimeUtilisateur(hashMapStringString mapParameters){
 	rename("util/temp.csv", "util/mapUsers.csv");
 
 	printf(YEL "Utilisateur %s %s supprimé.\n" RESET, nom, prenom);
+	envoieRetour(CODE_ACTION_REUSSI);
 
-	sprintf(retour, "%d \n", CODE_ACTION_REUSSI);
-	Emission(retour);
 	printf("     Sortie de : supprimeUtilisateur\n");
 	return 1;
 }
@@ -529,7 +494,6 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 	printf("     Entrée dans : aiguillageServeur\n");
 
 	char* action;
-	char retour[BUFSIZ];
 	printf(BLU "ACTION = %s\n" RESET, getFromHashMapStringString(&mapParameters, "ACTION"));
 
 	//On récupère l'action souhaité par le client
@@ -547,8 +511,7 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 			if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
 				ajouteUtilisateur(mapParameters, "0");
 			}else{
-				sprintf(retour, "%d \n", CODE_ACTION_IMPOSSIBLE);
-				Emission(retour);
+				envoieRetour(CODE_ACTION_IMPOSSIBLE);
 			}
 			break;
 		case ACTION_MODIFIE_UTILISATEUR:
@@ -556,8 +519,7 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 			if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
 				modifieUtilisateur(mapParameters);
 			}else{
-				sprintf(retour, "%d \n", CODE_ACTION_IMPOSSIBLE);
-				Emission(retour);
+				envoieRetour(CODE_ACTION_IMPOSSIBLE);
 			}
 			break;
 		case ACTION_SUPPRIME_UTILISATEUR:
@@ -565,8 +527,7 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 			if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
 				supprimeUtilisateur(mapParameters);
 			}else{
-				sprintf(retour, "%d \n", CODE_ACTION_IMPOSSIBLE);
-				Emission(retour);
+				envoieRetour(CODE_ACTION_IMPOSSIBLE);
 			}
 			break;
 		case ACTION_CREE_ANNUAIRE:
@@ -588,13 +549,11 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 
 		//Si on ne connait pas l'action souhaitée
 		if(actionCod < 2 || actionCod > 10){
-			sprintf(retour, "%d \n", CODE_ACTION_INCONNU);
-			Emission(retour);
+			envoieRetour(CODE_ACTION_INCONNU);
 		}
 	}else{
 		//Si l'action est a NULL
-		sprintf(retour, "%d \n", CODE_ACTION_INCONNU);
-		Emission(retour);
+		envoieRetour(CODE_ACTION_INCONNU);
 	}
 	
 	printf("     Sortie de : aiguillageServeur\n");
@@ -704,37 +663,10 @@ int main() {
 					logged = 0;
 
 					//On indique qu'on c'est bien déconnecté
-					char retour[BUFSIZ];
-					sprintf(retour, "%d \n", CODE_DECONNEXION);
-					Emission(retour);
+					envoieRetour(CODE_DECONNEXION);
 				}
 			}else{
-				printf("Attente de connexion...\n");
-
-				char* login = getFromHashMapStringString(&mapParameters, "login");
-				char* password = getFromHashMapStringString(&mapParameters, "password");
-				char* action = getFromHashMapStringString(&mapParameters, "ACTION");
-				char retour[BUFSIZ];
-
-				//Si on a une demande de connexion et que le login et mot de passe sont valides
-				if(login != NULL && password != NULL && action != NULL &&
-				strcmp(action,"1") == 0 && isMotDePasseValide(mapUtilisateurs, login, password) == 1){
-					//On crée alors notre utilisateur connecté
-					userLogged = malloc(sizeof(utilisateur));
-					userLogged = getUserWithLogin(&mapUtilisateurs, login);
-					logged = 1;
-					printf(RED "Connexion réussie avec le login: \"%s\".\n" RESET, login);
-
-					//On emet si l'utilisateur est un admin ou non
-					if(isUserAdmin(mapUtilisateurs, userLogged) == 1){
-						sprintf(retour, "%d \n", CODE_CONNEXION_REUSSI_ADMIN);
-					}else{
-						sprintf(retour, "%d \n", CODE_CONNEXION_REUSSI_USER);
-					}
-				}else{
-					sprintf(retour, "%d \n", CODE_CONNEXION_PAS_OK);
-				}
-				Emission(retour);
+				connexion(mapParameters, userLogged, &logged);
 			}		
 
 			//On libère l'espace mémoire alloué au message recu

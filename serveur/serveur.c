@@ -21,6 +21,7 @@
 #include "serveur.h"
 #include "../util/util.h"
 #include "../util/user.h"
+#include "../util/workString.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -45,6 +46,13 @@ int socketService;
 char tamponClient[LONGUEUR_TAMPON];
 int debutTampon;
 int finTampon;
+
+void envoieRetour(int codeRetour){
+	char retour[BUFSIZ];
+		
+	sprintf(retour, "%d \n", codeRetour);
+	Emission(retour);
+}
 
 int extraitRequete(char *requete, hashMapStringString* mapParameters){
 	printf("     Entrée dans : extraitRequete\n");

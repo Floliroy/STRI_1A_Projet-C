@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../serveur/serveur.h"
 #include "util.h"
 #include "user.h"
+#include "workString.h"
 
 void addToHashMapStringString(hashMapStringString* map, char* key, char* value){
 	//Allocation dynamique de la clé et de la valeur
@@ -71,21 +71,23 @@ char* getFromHashMapUserString(hashMapUserString* map, utilisateur* key){
 	return NULL; //Retourne null si on ne trouve aucune correspondance
 }
 
-void recupereString(char ligne[BUFSIZ], char string[BUFSIZ], int* start, char delimiteur){
-	int i = 0;
-	int cpt = *start;
+void copieSaufLigne(FILE* fileBase, FILE* fileNew, int ligne){
+	int cpt = 0, copie = 1;
+	char c;
 
-	//Tant qu'on a pas le caractere de fin
-	while(ligne[cpt] != delimiteur){
-		string[i] = ligne[cpt];
+	//Tant qu'on est pas a la fin du fichier
+	while((c = getc(fileBase)) != EOF){
 		cpt++;
-		i++;
+		//Si on arrive a la ligne de l'utilisateur a supprimer on arrete de copier jusqu'a ...
+		if (cpt == ligne+1)
+			copie = 0;
+
+		if(copie == 1){
+			putc(c, fileNew);
+		}
+
+		//... on arrete de copier jusqu'a avoir un retour a la ligne (marquant la fin des données de l'utilisateur)
+		if(c == '\n')
+			copie = 1;
 	}
-
-	//On ferme notre string
-	string[i] = '\0';
-	cpt++;
-
-	//On incremente pour passer au caractere après le delimiteur
-	*start = cpt;
 }

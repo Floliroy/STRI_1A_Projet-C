@@ -15,6 +15,7 @@
 #include "client.h"
 #include "../util/util.h"
 #include "../util/user.h"
+#include "../util/workString.h"
 
 #define TRUE 1
 #define FALSE 0

@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../serveur/serveur.h"
 #include "util.h"
 #include "user.h"
+#include "workString.h"
 
 utilisateur* getUserWithNomPrenom(hashMapUserString* map, char* nom, char* prenom){
 	printf("     Entrée dans : getUserWithNomPrenom\n");

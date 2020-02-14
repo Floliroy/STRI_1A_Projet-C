@@ -29,16 +29,6 @@
 
 #define CODE_CONSULTE_ANNUAIRE 40
 
-//Couleurs pour les printf en console
-#define RED   "\x1B[31m"
-#define GRN   "\x1B[32m"
-#define YEL   "\x1B[33m"
-#define BLU   "\x1B[34m"
-#define MAG   "\x1B[35m"
-#define CYN   "\x1B[36m"
-#define WHT   "\x1B[37m"
-#define RESET "\x1B[0m"
-
 //Structure utilisateur
 typedef struct {
 	char* nom; // champ obligatoire 
@@ -112,15 +102,13 @@ void addToHashMapUserString(hashMapUserString* map, utilisateur key, char* value
  **/
 char* getFromHashMapUserString(hashMapUserString* map, utilisateur* key);
 
-
 /**
- * Parcours le string ligne et extrait un sous string entre l'indice de départ et un délimiteur.
+ * Permet de copier un fichier dans un autre sauf une ligne
  * 
- * @param ligne String dans lequelle on va extraire notre sous string
- * @param string String que l'on souhaite extraire de ligne
- * @param start Indice de départ (on le renvoit pour pouvoir revenir dans la fonction avec un autre sous string a extraire)
- * @param delimiteur Le caractere a partir duquel on arrete d'extraire notre sous string
+ * @param fileBase Le fichier a copier
+ * @param fileNew Le fichier de destination
+ * @param ligne La position du curseur de la ligne a ne pas copier
  **/
-void recupereString(char ligne[BUFSIZ], char string[BUFSIZ], int* start, char delimiteur);
+void copieSaufLigne(FILE* fileBase, FILE* fileNew, int ligne);
 
 #endif

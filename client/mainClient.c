@@ -4,40 +4,18 @@
 #include "client.h"
 #include "../util/util.h"
 #include "../util/user.h"
-
-/**
- * Permet de lire une chaine tapée dans la console
- **/
-int monLire(char chaine[BUFSIZ]){
-	int taille;
-    if(!fgets(chaine, BUFSIZ, stdin)){        
-		return(-1);    
-	}    
-	
-	//On enleve le stockage du retour à la ligne   
-	taille = strlen(chaine); 
-	if(chaine[taille - 1] == '\n'){
-		chaine[taille - 1] = '\0';
-	}   
-    return taille;
-}
+#include "../util/workString.h"
 
 /**
  * Permet de se connecter au serveur en demandant le login et le mdp utilisateur
  **/
 void connexion(){
 	hashMapStringString mapParameters = {.size = 0};
-	char login[BUFSIZ], password[BUFSIZ];
-
 	printf(RED "\nConnexion :\n" RESET);
-	printf("Entrez votre login : ");
-	monLire(login);
-	printf("Entrez votre mot de passe : ");
-	monLire(password);
 
 	addToHashMapStringString(&mapParameters, "ACTION", "1");
-	addToHashMapStringString(&mapParameters, "login", login);
-	addToHashMapStringString(&mapParameters, "password", password);
+	demandeParam("login", &mapParameters, 1, 0);
+	demandeParam("password", &mapParameters, 1, 0);
 	envoieRequeteFormatee(mapParameters);
 }
 
@@ -48,7 +26,6 @@ void connexion(){
  **/
 void deconnexion(int show){
 	hashMapStringString mapParameters= {.size = 0};
-
 	if(show != 0){
 		printf(RED "\nDéconnexion !\n" RESET);
 	}
@@ -74,21 +51,12 @@ void creeAnnuaire(){
  **/
 void ajouteDansAnnuaire(){
 	hashMapStringString mapParameters= {.size = 0};
-	char nom[BUFSIZ], prenom[BUFSIZ], droits[BUFSIZ];
-
 	printf(RED "\nAjout d'un Utilisateur à l'Annuaire !\n" RESET);
 
-	printf("Entrez son nom : ");
-	monLire(nom);
-	printf("Entrez son prénom : ");
-	monLire(prenom);
-	printf("Entrez ses droits (0/1) : ");
-	monLire(droits);
-
 	addToHashMapStringString(&mapParameters, "ACTION", "7");
-	addToHashMapStringString(&mapParameters, "nom", nom);
-	addToHashMapStringString(&mapParameters, "prenom", prenom);
-	addToHashMapStringString(&mapParameters, "droits", droits);
+	demandeParam("nom", &mapParameters, 0, 0);
+	demandeParam("prenom", &mapParameters, 0, 0);
+	demandeParam("droits", &mapParameters, -1, 0);
 	envoieRequeteFormatee(mapParameters);
 }
 
@@ -97,18 +65,11 @@ void ajouteDansAnnuaire(){
  **/
 void supprimeDeAnnuaire(){
 	hashMapStringString mapParameters= {.size = 0};
-	char nom[BUFSIZ], prenom[BUFSIZ];
-
 	printf(RED "\nSuppression d'un Utilisateur de l'Annuaire !\n" RESET);
 
-	printf("Entrez son nom : ");
-	monLire(nom);
-	printf("Entrez son prénom : ");
-	monLire(prenom);
-
 	addToHashMapStringString(&mapParameters, "ACTION", "8");
-	addToHashMapStringString(&mapParameters, "nom", nom);
-	addToHashMapStringString(&mapParameters, "prenom", prenom);
+	demandeParam("nom", &mapParameters, 0, 0);
+	demandeParam("prenom", &mapParameters, 0, 0);
 	envoieRequeteFormatee(mapParameters);
 }
 
@@ -117,7 +78,6 @@ void supprimeDeAnnuaire(){
  **/
 void supprimeAnnuaire(){
 	hashMapStringString mapParameters= {.size = 0};
-
 	printf(RED "\nSuppresion d'Annuaire !\n" RESET);
 
 	addToHashMapStringString(&mapParameters, "ACTION", "9");
@@ -129,7 +89,6 @@ void supprimeAnnuaire(){
  **/
 void consulterAnnuaire(){
 	hashMapStringString mapParameters= {.size = 0};
-
 	printf(RED "\nConsulter son Annuaire !\n" RESET);
 
 	addToHashMapStringString(&mapParameters, "ACTION", "10");
@@ -141,48 +100,21 @@ void consulterAnnuaire(){
  **/
 void ajouteUtilisateur(){
 	hashMapStringString mapParameters = {.size = 0};
-	char nom[BUFSIZ], prenom[BUFSIZ], mail[BUFSIZ], adressePostale[BUFSIZ], numTel[BUFSIZ], remarque[BUFSIZ], age[BUFSIZ], login[BUFSIZ], password[BUFSIZ];
-
 	printf(RED "\nAjout d'un Utilisateur :\n" RESET);
-	printf("Entrez son nom : ");
-	monLire(nom);
-	printf("Entrez son prénom : ");
-	monLire(prenom);
-	printf("Entrez son mail : ");
-	monLire(mail);
-	printf("Entrez son login : ");
-	monLire(login);
-	printf("Entrez son mot de passe : ");
-	monLire(password);
-	printf("Entrez son adresse (ou entrée) : ");
-	monLire(adressePostale);
-	printf("Entrez son numéro (ou entrée) : ");
-	monLire(numTel);
-	printf("Entrez une remarque (ou entrée) : ");
-	monLire(remarque);
-	printf("Entrez son age (ou entrée) : ");
-	monLire(age);
 
 	addToHashMapStringString(&mapParameters, "ACTION", "3");
-	addToHashMapStringString(&mapParameters, "nom", nom);
-	addToHashMapStringString(&mapParameters, "prenom", prenom);
-	addToHashMapStringString(&mapParameters, "mail", mail);
-	addToHashMapStringString(&mapParameters, "login", login);
-	addToHashMapStringString(&mapParameters, "password", password);
+	demandeParam("nom", &mapParameters, 0, 0);
+	demandeParam("prenom", &mapParameters, 0, 0);
+	demandeParam("mail", &mapParameters, 0, 0);
+	demandeParam("login", &mapParameters, 0, 0);
+	demandeParam("password", &mapParameters, 0, 0);
 
-	if(adressePostale != NULL && strlen(adressePostale) > 0){
-		addToHashMapStringString(&mapParameters, "adressePostale", adressePostale);
-	}
-	if(numTel != NULL && strlen(numTel) > 0){
-		addToHashMapStringString(&mapParameters, "numTel", numTel);
-	}
-	if(remarque != NULL && strlen(remarque) > 0){
-		addToHashMapStringString(&mapParameters, "remarque", remarque);
-	}
-	if(age != NULL && strlen(age) > 0){
-		addToHashMapStringString(&mapParameters, "age", age);
-	}
-	
+	printf(RED "\nChamps optionnels :\n" RESET);
+	demandeParam("adressePostale", &mapParameters, 0, 1);
+	demandeParam("numTel", &mapParameters, 0, 1);
+	demandeParam("remarque", &mapParameters, 2, 1);
+	demandeParam("age", &mapParameters, 0, 1);	
+
 	envoieRequeteFormatee(mapParameters);
 }
 
@@ -191,54 +123,21 @@ void ajouteUtilisateur(){
  **/
 void modifieUtilisateur(){
 	hashMapStringString mapParameters = {.size = 0};
-	char nom[BUFSIZ], prenom[BUFSIZ], mail[BUFSIZ], adressePostale[BUFSIZ], numTel[BUFSIZ], remarque[BUFSIZ], age[BUFSIZ], login[BUFSIZ], password[BUFSIZ];
-
 	printf(RED "\nModification d'un Utilisateur :\n" RESET);
-	printf("Entrez son nom : ");
-	monLire(nom);
-	printf("Entrez son prénom : ");
-	monLire(prenom);
-	printf("Entrez son nouveau mail (ou entrée) : ");
-	monLire(mail);
-	printf("Entrez son nouveau login (ou entrée) : ");
-	monLire(login);
-	printf("Entrez son nouveau mot de passe (ou entrée) : ");
-	monLire(password);
-	printf("Entrez son nouveau adresse (ou entrée) : ");
-	monLire(adressePostale);
-	printf("Entrez son nouveau numéro (ou entrée) : ");
-	monLire(numTel);
-	printf("Entrez une nouvelle remarque (ou entrée) : ");
-	monLire(remarque);
-	printf("Entrez son nouveau age (ou entrée) : ");
-	monLire(age);
 
 	addToHashMapStringString(&mapParameters, "ACTION", "4");
-	addToHashMapStringString(&mapParameters, "nom", nom);
-	addToHashMapStringString(&mapParameters, "prenom", prenom);
+	demandeParam("nom", &mapParameters, 0, 0);
+	demandeParam("prenom", &mapParameters, 0, 0);
 
-	if(mail != NULL && strlen(mail) > 0){
-		addToHashMapStringString(&mapParameters, "mail", mail);
-	}
-	if(login != NULL && strlen(login) > 0){
-		addToHashMapStringString(&mapParameters, "login", login);
-	}
-	if(password != NULL && strlen(password) > 0){
-		addToHashMapStringString(&mapParameters, "password", password);
-	}
-	if(adressePostale != NULL && strlen(adressePostale) > 0){
-		addToHashMapStringString(&mapParameters, "adressePostale", adressePostale);
-	}
-	if(numTel != NULL && strlen(numTel) > 0){
-		addToHashMapStringString(&mapParameters, "numTel", numTel);
-	}
-	if(remarque != NULL && strlen(remarque) > 0){
-		addToHashMapStringString(&mapParameters, "remarque", remarque);
-	}
-	if(age != NULL && strlen(age) > 0){
-		addToHashMapStringString(&mapParameters, "age", age);
-	}
-	
+	printf(RED "\nChamps à modifier :\n" RESET);
+	demandeParam("mail", &mapParameters, 0, 1);
+	demandeParam("login", &mapParameters, 0, 1);
+	demandeParam("password", &mapParameters, 0, 1);
+	demandeParam("adressePostale", &mapParameters, 0, 1);
+	demandeParam("numTel", &mapParameters, 0, 1);
+	demandeParam("remarque", &mapParameters, 2, 1);
+	demandeParam("age", &mapParameters, 0, 1);	
+
 	envoieRequeteFormatee(mapParameters);
 }
 
@@ -247,18 +146,11 @@ void modifieUtilisateur(){
  **/
 void supprimeUtilisateur(){
 	hashMapStringString mapParameters = {.size = 0};
-	char nom[BUFSIZ], prenom[BUFSIZ];
-
 	printf(RED "\nSuppression d'un Utilisateur :\n" RESET);
-	printf("Entrez son nom : ");
-	monLire(nom);
-	printf("Entrez son prénom : ");
-	monLire(prenom);
 
 	addToHashMapStringString(&mapParameters, "ACTION", "5");
-	addToHashMapStringString(&mapParameters, "nom", nom);
-	addToHashMapStringString(&mapParameters, "prenom", prenom);
-	
+	demandeParam("nom", &mapParameters, 0, 0);
+	demandeParam("prenom", &mapParameters, 0, 0);	
 	envoieRequeteFormatee(mapParameters);
 }
 
@@ -315,6 +207,9 @@ void aiguillageRetour(char* message, int* logged, int* admin){
 	recupereString(message, stringCode, &cpt, ' ');
 
 	int code = atoi(stringCode);
+
+	//On efface ce qu'il y a dans la console
+	if(system("clear")){}
 
 	switch (code){
 	case CODE_CONNEXION_REUSSI_ADMIN:
@@ -377,29 +272,31 @@ int afficheMenu(int admin){
 	int action;
 	char stringAction[BUFSIZ];
 	//On affiche le menu
-	printf(RED "\nBienvenue sur le Client de Floliroy :\n" RESET);
-	printf(BLU " 1. Se déconnecter\n" RESET);
-	printf(BLU " 2. Créer un annuaire\n" RESET);
-	printf(BLU " 3. Supprimer son annuaire\n" RESET);
-	printf(BLU " 4. Ajouter utilisateur à son annuaire\n" RESET);
-	printf(BLU " 5. Supprimer utilisateur de son annuaire\n" RESET);
-	printf(BLU " 6. Consulter son annuaire\n" RESET);
+	do{
+		printf(RED "\nBienvenue sur le Client de Floliroy :\n" RESET);
+		printf(BLU " 1. Se déconnecter\n" RESET);
+		printf(BLU " 2. Créer un annuaire\n" RESET);
+		printf(BLU " 3. Supprimer son annuaire\n" RESET);
+		printf(BLU " 4. Ajouter utilisateur à son annuaire\n" RESET);
+		printf(BLU " 5. Supprimer utilisateur de son annuaire\n" RESET);
+		printf(BLU " 6. Consulter son annuaire\n" RESET);
 
-	//On affiche certains l'element seulement si l'utilisateur est admin
-	if(admin == 1){
-		printf(BLU " 7. Ajouter un utilisateur\n" RESET);
-		printf(BLU " 8. Modifier un utilisateur\n" RESET);
-		printf(BLU " 9. Supprimer un utilisateur\n" RESET);
-	}
+		//On affiche certains l'element seulement si l'utilisateur est admin
+		if(admin == 1){
+			printf(BLU " 7. Ajouter un utilisateur\n" RESET);
+			printf(BLU " 8. Modifier un utilisateur\n" RESET);
+			printf(BLU " 9. Supprimer un utilisateur\n" RESET);
+		}
 
-	printf("\nEntrer le numéro de l'action souhaitée : ");
-	//On récupère l'action souhaitée
-	monLire(stringAction);
-	action = atoi(stringAction);
-	if((action > 6 && admin != 1) || action < 1 || action > 9){
-		printf("\nERREUR : Action inconnue...\n");
-		return -1;
-	}
+		printf("\nEntrer le numéro de l'action souhaitée : ");
+		//On récupère l'action souhaitée
+		monLire(stringAction);
+		action = atoi(stringAction);
+
+		if((action > 6 && admin != 1) || action < 1 || action > 9){
+			printf("\nERREUR : Action inconnue...\n");
+		}
+	}while((action > 6 && admin != 1) || action < 1 || action > 9);
 
 	//On renvoit l'action qui servira a l'aiguillage
 	switch (action){

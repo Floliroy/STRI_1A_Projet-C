@@ -4,6 +4,13 @@
 #include "../util/util.h"
 
 /**
+ * Permet d'envoyer un code de retour au client
+ * 
+ * @param codeRetour Le code a emettre
+ **/
+void envoieRetour(int codeRetour);
+
+/**
  * Extrait de la requête les différents parametres de cette derniere dans une HashMap
  * 
  * @param requete La requete recu
