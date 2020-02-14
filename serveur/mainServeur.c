@@ -8,7 +8,7 @@
 
 hashMapUserString mapUtilisateurs; //Création de la map contennant tous les utilisateurs en variable globale
 
-void connexion(hashMapStringString mapParameters, utilisateur* userLogged, int* logged){
+utilisateur* connexion(hashMapStringString mapParameters, int* logged){
 	printf("Attente de connexion...\n");
 
 	char* login = getFromHashMapStringString(&mapParameters, "login");
@@ -30,9 +30,10 @@ void connexion(hashMapStringString mapParameters, utilisateur* userLogged, int* 
 		}else{
 			envoieRetour(CODE_CONNEXION_REUSSI_USER);
 		}
-		*userLogged = *user;
+		return user;
 	}else{
 		envoieRetour(CODE_CONNEXION_PAS_OK);
+		return NULL;
 	}
 }
 
@@ -210,7 +211,7 @@ void consulteAnnuaire(utilisateur* userLogged){
 			utilisateur* user = getUserWithNomPrenom(&mapUtilisateurs, nom, prenom);
 			char champsUtilisateur[BUFSIZ];
 			//sprintf(champsUtilisateur, "%s %s %s %s %s %s %d %s %s\n", user->nom, user->prenom, user->mail, user->adressePostale, user->numTel, user->remarque, user->age, user->login, user->password);
-			sprintf(champsUtilisateur, "%s %s %s,", user->nom, user->prenom, user->mail);
+			sprintf(champsUtilisateur, "%s     %s     %s,", user->nom, user->prenom, user->mail);
 			strcat(retour, champsUtilisateur);
 		}
 		strcat(retour, "\n");
@@ -292,7 +293,7 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	newUtilisateur.age = atoi(age); //convertir une chaine de caractère en int
 
 	//On ajoute l'utilisateur a la map
-	addToHashMapUserString(&mapUtilisateurs, newUtilisateur, "0");
+	addToHashMapUserString(&mapUtilisateurs, newUtilisateur, admin);
 
 	//Puis au fichier csv
 	FILE* csv;
@@ -312,7 +313,10 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	fclose(csv);
 
 	printf(YEL "Utilisateur %s %s ajouté.\n" RESET, nom, prenom);
-	envoieRetour(CODE_ACTION_REUSSI);
+	
+	if(strcmp(admin,"1") != 0){
+		envoieRetour(CODE_ACTION_REUSSI);
+	}
 
 	printf("     Sortie de : ajouteUtilisateur\n");
 	return 1;
@@ -666,7 +670,7 @@ int main() {
 					envoieRetour(CODE_DECONNEXION);
 				}
 			}else{
-				connexion(mapParameters, userLogged, &logged);
+				userLogged = connexion(mapParameters, &logged);
 			}		
 
 			//On libère l'espace mémoire alloué au message recu

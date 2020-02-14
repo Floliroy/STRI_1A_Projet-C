@@ -340,8 +340,9 @@ int main() {
 	int admin = 0;
 	int logged = 0;
 
-	
+	if(system("clear")){}
 	deconnexion(0);
+	
 	while(1){
 		if(logged == 0){
 			//Si on est pas connecté alors on essaye de se connecter
