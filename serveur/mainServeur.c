@@ -185,18 +185,30 @@ void supprimeAnnuaire(utilisateur* userLogged){
  * 
  * @param userLogged L'utilisateur souhaitant consulter son annuaire
  **/
-void consulteAnnuaire(utilisateur* userLogged){
+void consulteAnnuaire(hashMapStringString mapParameters, utilisateur* userLogged){
 	printf("     Entrée dans : consulteAnnuaire\n");
 	char stringAnnuaire[BUFSIZ], retour[BUFSIZ];
 	//On construit le chemin de l'annuaire de l'utilisateur
-	sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged->nom, userLogged->prenom);
+	char *nomAnnu, *prenomAnnu;
+	int annuPropre = 1;
+	int envoie = 0;
+
+	//On regarde si on doit consulter son propre annuaire on celui d'un autre
+	if((nomAnnu = getFromHashMapStringString(&mapParameters, "nom")) != NULL &&
+	(prenomAnnu = getFromHashMapStringString(&mapParameters, "prenom")) != NULL){
+		sprintf(stringAnnuaire, "util/annu%s%s.csv", nomAnnu, prenomAnnu);
+		annuPropre = 0;
+	}else{
+		sprintf(stringAnnuaire, "util/annu%s%s.csv", userLogged->nom, userLogged->prenom);
+		envoie = 1;
+	}
 
 	FILE* annuaire;
 	if((annuaire = fopen(stringAnnuaire, "r"))){
 		sprintf(retour, "%d ,", CODE_CONSULTE_ANNUAIRE);
 
 		//Si on peut ouvrir le fichier c'est qu'il existe on va donc renvoyer la liste des utilisateurs
-		char nom[BUFSIZ], prenom[BUFSIZ], finLigne[BUFSIZ];
+		char nom[BUFSIZ], prenom[BUFSIZ], droits[BUFSIZ];
 		char ligne[BUFSIZ];
 
 		//On récupère les valeurs ligne par ligne (donc utilisateur par utilisateur)
@@ -205,7 +217,14 @@ void consulteAnnuaire(utilisateur* userLogged){
 			//On extrait les deux champs de la ligne
 			recupereString(ligne, nom, &cpt, ',');
 			recupereString(ligne, prenom, &cpt, ',');
-			recupereString(ligne, finLigne, &cpt, '\n');
+			recupereString(ligne, droits, &cpt, '\n');
+
+			//On vérifie si l'utilisateur a les droits
+			if(annuPropre == 0 && strcmp(userLogged->nom, nom) == 0 && strcmp(userLogged->prenom, prenom) == 0){
+				if(strcmp(droits, "1") == 0){
+					envoie = 1;
+				}
+			}
 
 			//On stocke les valeurs dans les champs de l'utilisateur
 			utilisateur* user = getUserWithNomPrenom(&mapUtilisateurs, nom, prenom);
@@ -215,11 +234,22 @@ void consulteAnnuaire(utilisateur* userLogged){
 			strcat(retour, champsUtilisateur);
 		}
 		strcat(retour, "\n");
-		printf(YEL "Consultation de l'annuaire de %s %s terminé.\n" RESET, userLogged->nom, userLogged->prenom);
+		
+		//On répond au client
+		if(envoie == 1){
+			if(annuPropre == 1){
+				printf(YEL "Consultation de l'annuaire de %s %s terminé.\n" RESET, userLogged->nom, userLogged->prenom);
+			}else{
+				printf(YEL "Consultation de l'annuaire de %s %s terminé.\n" RESET, nomAnnu, prenomAnnu);
+			}
+			Emission(retour);
+		}else{
+			printf("Erreur, l'utilisateur n'a pas les droits pour consulter cet annuaire.\n");
+			envoieRetour(CODE_ACTION_IMPOSSIBLE);
+		}
+
 		//On ferme le fichier precedemment ouvert
 		fclose(annuaire);
-		
-		Emission(retour);
 	}else{
 		//Sinon on indique a l'utilisateur qu'il doit d'abord créer un son annuaire
 		printf("Erreur, l'annuaire de cet utilisateur n'existe pas.\n");
@@ -547,7 +577,7 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 			supprimeAnnuaire(userLogged);
 			break;
 		case ACTION_CONSULTE_ANNUAIRE:
-			consulteAnnuaire(userLogged);
+			consulteAnnuaire(mapParameters, userLogged);
 			break;
 		}
 

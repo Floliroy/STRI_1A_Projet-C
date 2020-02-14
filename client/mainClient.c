@@ -96,6 +96,19 @@ void consulterAnnuaire(){
 }
 
 /**
+ * Permet de consulter l'annuaire d'un autre utilisateur
+ **/
+void consulterAutreAnnuaire(){
+	hashMapStringString mapParameters= {.size = 0};
+	printf(RED "\nConsulter Annuaire d'un Utilisateur :\n" RESET);
+
+	addToHashMapStringString(&mapParameters, "ACTION", "10");
+	demandeParam("nom", &mapParameters, 0, 0);
+	demandeParam("prenom", &mapParameters, 0, 0);
+	envoieRequeteFormatee(mapParameters);
+}
+
+/**
  * Permet d'ajouter un nouvel utilisateur en demandant les champs nécessaires
  **/
 void ajouteUtilisateur(){
@@ -191,6 +204,9 @@ void aiguillageAction(int action){
 	case ACTION_CONSULTE_ANNUAIRE:
 		consulterAnnuaire();
 		break;
+	case ACTION_CONSULTE_AUTRE_ANNUAIRE:
+		consulterAutreAnnuaire();
+		break;
 	}
 }
 
@@ -249,7 +265,7 @@ void aiguillageRetour(char* message, int* logged, int* admin){
 		printf("\n	La ressouce a laquelle vous souhaitez accéder est introuvable.\n");
 		break;
 	case CODE_CONSULTE_ANNUAIRE:
-		printf("\n	Voici les utilisateurs dans votre annuaire :\n");
+		printf("\n	Voici les utilisateurs présents dans l'annuaire :\n");
 		for(int i=0 ; i<=strlen(message) ; i++){
 			if(message[i] == ',')  {
 				message[i] = '\n';
@@ -280,12 +296,13 @@ int afficheMenu(int admin){
 		printf(BLU " 4. Ajouter utilisateur à son annuaire\n" RESET);
 		printf(BLU " 5. Supprimer utilisateur de son annuaire\n" RESET);
 		printf(BLU " 6. Consulter son annuaire\n" RESET);
+		printf(BLU " 7. Consulter l'annuaire d'un utilisateur\n" RESET);
 
 		//On affiche certains l'element seulement si l'utilisateur est admin
 		if(admin == 1){
-			printf(BLU " 7. Ajouter un utilisateur\n" RESET);
-			printf(BLU " 8. Modifier un utilisateur\n" RESET);
-			printf(BLU " 9. Supprimer un utilisateur\n" RESET);
+			printf(BLU " 8. Ajouter un utilisateur\n" RESET);
+			printf(BLU " 9. Modifier un utilisateur\n" RESET);
+			printf(BLU " 10. Supprimer un utilisateur\n" RESET);
 		}
 
 		printf("\nEntrer le numéro de l'action souhaitée : ");
@@ -293,10 +310,10 @@ int afficheMenu(int admin){
 		monLire(stringAction);
 		action = atoi(stringAction);
 
-		if((action > 6 && admin != 1) || action < 1 || action > 9){
+		if((action > 7 && admin != 1) || action < 1 || action > 10){
 			printf("\nERREUR : Action inconnue...\n");
 		}
-	}while((action > 6 && admin != 1) || action < 1 || action > 9);
+	}while((action > 7 && admin != 1) || action < 1 || action > 10);
 
 	//On renvoit l'action qui servira a l'aiguillage
 	switch (action){
@@ -319,12 +336,15 @@ int afficheMenu(int admin){
 		return ACTION_CONSULTE_ANNUAIRE;
 		break;
 	case 7:
-		return ACTION_AJOUTE_UTILISATEUR;
+		return ACTION_CONSULTE_AUTRE_ANNUAIRE;
 		break;
 	case 8:
-		return ACTION_MODIFIE_UTILISATEUR;
+		return ACTION_AJOUTE_UTILISATEUR;
 		break;
 	case 9:
+		return ACTION_MODIFIE_UTILISATEUR;
+		break;
+	case 10:
 		return ACTION_SUPPRIME_UTILISATEUR;
 		break;
 	}
@@ -342,7 +362,7 @@ int main() {
 
 	if(system("clear")){}
 	deconnexion(0);
-	
+
 	while(1){
 		if(logged == 0){
 			//Si on est pas connecté alors on essaye de se connecter

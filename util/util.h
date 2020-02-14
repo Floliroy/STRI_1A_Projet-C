@@ -12,6 +12,7 @@
 #define ACTION_SUPPRIME_DE_ANNUAIRE 8
 #define ACTION_SUPPRIME_ANNUAIRE 9
 #define ACTION_CONSULTE_ANNUAIRE 10
+#define ACTION_CONSULTE_AUTRE_ANNUAIRE 11
 
 //Constantes concernant les codes de retour / d'erreur
 #define CODE_CONNEXION_REUSSI_USER 10
