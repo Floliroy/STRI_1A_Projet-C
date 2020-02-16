@@ -13,7 +13,7 @@
 #define WHT   "\x1B[37m"
 #define RESET "\x1B[0m"
 
-/**
+/** (Florian)
  * Permet de lire une chaine tapée dans la console.
  * 
  * @param chaine La chaine à lire
@@ -21,7 +21,7 @@
  **/
 int monLire(char chaine[BUFSIZ]);
 
-/**
+/** (Florian)
  * Parcours le string ligne et extrait un sous string entre l'indice de départ et un délimiteur.
  * 
  * @param ligne String dans lequelle on va extraire notre sous string
@@ -31,7 +31,7 @@ int monLire(char chaine[BUFSIZ]);
  **/
 void recupereString(char ligne[BUFSIZ], char string[BUFSIZ], int* start, char delimiteur);
 
-/**
+/** (Florian)
  * Permet de demander un a l'utilisateur de rentrer un paramètre, puis dans le stocker dans une HashMap.
  * 
  * @param nomParam Le nom de ce paramètre

@@ -3,14 +3,14 @@
 
 #include "../util/util.h"
 
-/**
+/** (Florian)
  * Permet d'envoyer un code de retour au client
  * 
  * @param codeRetour Le code a emettre
  **/
 void envoieRetour(int codeRetour);
 
-/**
+/** (Florian)
  * Extrait de la requête les différents parametres de cette derniere dans une HashMap
  * 
  * @param requete La requete recu
@@ -19,7 +19,7 @@ void envoieRetour(int codeRetour);
  **/
 int extraitRequete(char *requete, hashMapStringString* mapParameters);
 
-/**
+/** (Florian)
  * Vérifie si la requete passé en parametre est bien une requete GET
  * 
  * @param requete La requete recu

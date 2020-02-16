@@ -8,6 +8,13 @@
 
 hashMapUserString mapUtilisateurs; //Création de la map contennant tous les utilisateurs en variable globale
 
+/** (Florian)
+ * Permet a un utilisateur de se connecter au serveur.
+ * 
+ * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à ajouter
+ * @param logged L'etat de la connexion
+ * @return Renvoi l'utilisateur qui c'est connecté (ou NULL)
+ **/
 utilisateur* connexion(hashMapStringString mapParameters, int* logged){
 	printf("Attente de connexion...\n");
 
@@ -37,7 +44,7 @@ utilisateur* connexion(hashMapStringString mapParameters, int* logged){
 	}
 }
 
-/**
+/** (Katia & Duncan)
  * Permet d'ajouter un nouvel annuaire a un utilisateur s'il en a pas deja un
  * 
  * @param userLogged L'utilisateur souhaitant ajouter son annuaire
@@ -64,7 +71,7 @@ void creeAnnuaire(utilisateur* userLogged){
 	printf("     Sortie de : creeAnnuaire\n");
 }
 
-/**
+/** (Florian)
  * Permet d'ajouter un nouvel utilisateur a l'annuaire de l'utilisateur appelant le serveur
  * 
  * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à ajouter
@@ -114,7 +121,7 @@ void ajouteDansAnnuaire(hashMapStringString mapParameters, utilisateur* userLogg
 	printf("     Sortie de : ajouteDansAnnuaire\n");
 }
 
-/**
+/** (Florian)
  * Permet de supprimer utilisateur de l'annuaire de l'utilisateur appelant le serveur
  * 
  * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à supprime
@@ -162,7 +169,7 @@ void supprimeDeAnnuaire(hashMapStringString mapParameters, utilisateur* userLogg
 	printf("     Sortie de : supprimeDeAnnuaire\n");
 }
 
-/**
+/** (Florian)
  * Permet de supprime un annuaire a un utilisateur
  * 
  * @param userLogged L'utilisateur souhaitant ajouter son annuaire
@@ -180,7 +187,7 @@ void supprimeAnnuaire(utilisateur* userLogged){
 	printf("     Sortie de : supprimeAnnuaire\n");
 }
 
-/**
+/** (Florian)
  * Permet de consulter son annuaire
  * 
  * @param userLogged L'utilisateur souhaitant consulter son annuaire
@@ -260,7 +267,7 @@ void consulteAnnuaire(hashMapStringString mapParameters, utilisateur* userLogged
 	printf("     Sortie de : consulteAnnuaire\n");
 }
 
-/**
+/** (Florian)
  * Permet d'ajouter un nouvel utilisateur a mapUtilisateurs et au fichier csv (pour la sauvegarde)
  * 
  * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à ajouter
@@ -353,7 +360,7 @@ int ajouteUtilisateur(hashMapStringString mapParameters, char* admin){
 	return 1;
 }
 
-/**
+/** (Florian)
  * Permet de modifier un utilisateur dans mapUtilisateurs et dans le fichier csv
  * 
  * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à modifier
@@ -464,7 +471,7 @@ int modifieUtilisateur(hashMapStringString mapParameters){
 	return 1;
 }
 
-/**
+/** (Florian)
  * Permet de supprimer un utilisateur de mapUtilisateurs et dans le fichier csv
  * 
  * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à supprimer
@@ -518,7 +525,7 @@ int supprimeUtilisateur(hashMapStringString mapParameters){
 	return 1;
 }
 
-/**
+/** (Florian)
  * Fonction qui permet de pointer vers l'action à laquelle le client souhaite accéder
  * 
  * @param mapParameters Les parametres de la requete recu permettant d'avoir les données de l'utilisateur à supprimer
@@ -595,7 +602,7 @@ int aiguillageServeur(hashMapStringString mapParameters, utilisateur* userLogged
 	return 1;
 }
 
-/**
+/** (Florian)
  * Fonction qui permet d'initialiser la mapUtilisateurs en créant le fichier csv ou en le lisant
  **/
 void initMapUtilisateurs(){
@@ -664,7 +671,7 @@ void initMapUtilisateurs(){
 	printf("     Sortie de : initMapUtilisateurs\n");
 }
 
-/**
+/** (Florian)
  * Main du serveur
  **/
 int main() {

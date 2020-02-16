@@ -3,7 +3,7 @@
 
 #include "../util/util.h"
 
-/**
+/** (Florian)
  * Permet d'envoyer une requète formatée avec une HashMap<String,String> de paramètres.
  * 
  * @param mapParameters Les paramètres de notre requête

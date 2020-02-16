@@ -55,7 +55,7 @@ typedef struct{
 	elementStringString elem[BUFSIZ];
 }hashMapStringString;
 
-/**
+/** (Florian)
  * Ajoute à la HashMap<String,String> passé en paramètre une clé et une valeur.
  * 
  * @param map La HashMap dans laquelle on ajoutera le nouvel élément
@@ -64,7 +64,7 @@ typedef struct{
  **/
 void addToHashMapStringString(hashMapStringString* map, char* key, char* value);
 
-/**
+/** (Florian)
  * Recupère une valeur de la HashMap<String,String> passé en paramètre en fonction de la clé passée.
  * 
  * @param map La HashMap dans laquelle on cherche la valeur
@@ -85,7 +85,7 @@ typedef struct{
 	elementUserString elem[BUFSIZ];
 }hashMapUserString;
 
-/**
+/** (Florian)
  * Ajoute à la HashMap<utilisateur,String> passé en paramètre une clé et une valeur.
  * 
  * @param map La HashMap dans laquelle on ajoutera le nouvel élément
@@ -94,7 +94,7 @@ typedef struct{
  **/
 void addToHashMapUserString(hashMapUserString* map, utilisateur key, char* value);
 
-/**
+/** (Florian)
  * Recupère une HashMap<utilisateur,String> de la HashMap passé en paramètre en fonction de la clé passée.
  * 
  * @param map La HashMap dans laquelle on cherche la valeur
@@ -103,7 +103,7 @@ void addToHashMapUserString(hashMapUserString* map, utilisateur key, char* value
  **/
 char* getFromHashMapUserString(hashMapUserString* map, utilisateur* key);
 
-/**
+/** (Florian)
  * Permet de copier un fichier dans un autre sauf une ligne
  * 
  * @param fileBase Le fichier a copier

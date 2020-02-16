@@ -6,7 +6,7 @@
 #include "../util/user.h"
 #include "../util/workString.h"
 
-/**
+/** (Florian)
  * Permet de se connecter au serveur en demandant le login et le mdp utilisateur
  **/
 void connexion(){
@@ -19,7 +19,7 @@ void connexion(){
 	envoieRequeteFormatee(mapParameters);
 }
 
-/**
+/** (Florian)
  * Permet de déconnecter l'utilisateur actuellement connecté sur le serveur
  * 
  * @param show Permet de montrer ou non le message de déconnexion
@@ -34,7 +34,7 @@ void deconnexion(int show){
 	envoieRequeteFormatee(mapParameters);
 }
 
-/**
+/** (Florian)
  * Permet d'ajouter un annuaire
  **/
 void creeAnnuaire(){
@@ -46,7 +46,7 @@ void creeAnnuaire(){
 	envoieRequeteFormatee(mapParameters);
 }
 
-/**
+/** (Florian)
  * Permet d'ajouter un utilisateur a son annuaire
  **/
 void ajouteDansAnnuaire(){
@@ -61,7 +61,7 @@ void ajouteDansAnnuaire(){
 	envoieRequeteFormatee(mapParameters);
 }
 
-/**
+/** (Florian)
  * Permet de supprimer un utilisateur de son annuaire
  **/
 void supprimeDeAnnuaire(){
@@ -74,7 +74,7 @@ void supprimeDeAnnuaire(){
 	envoieRequeteFormatee(mapParameters);
 }
 
-/**
+/** (Florian)
  * Permet de supprimer un annuaire
  **/
 void supprimeAnnuaire(){
@@ -85,7 +85,7 @@ void supprimeAnnuaire(){
 	envoieRequeteFormatee(mapParameters);
 }
 
-/**
+/** (Florian)
  * Permet de consulter un annuaire
  **/
 void consulterAnnuaire(){
@@ -96,7 +96,7 @@ void consulterAnnuaire(){
 	envoieRequeteFormatee(mapParameters);
 }
 
-/**
+/** (Florian)
  * Permet de consulter l'annuaire d'un autre utilisateur
  **/
 void consulterAutreAnnuaire(){
@@ -109,7 +109,7 @@ void consulterAutreAnnuaire(){
 	envoieRequeteFormatee(mapParameters);
 }
 
-/**
+/** (Florian)
  * Permet d'ajouter un nouvel utilisateur en demandant les champs nécessaires
  **/
 void ajouteUtilisateur(){
@@ -132,7 +132,7 @@ void ajouteUtilisateur(){
 	envoieRequeteFormatee(mapParameters);
 }
 
-/**
+/** (Florian)
  * Permet de modifier un utilisateur en demandant son nom et son prénom ainsi que les infos a modifier
  **/
 void modifieUtilisateur(){
@@ -155,7 +155,7 @@ void modifieUtilisateur(){
 	envoieRequeteFormatee(mapParameters);
 }
 
-/**
+/** (Florian)
  * Permet de supprimer un utilisateur en demandant son nom et son prénom 
  **/
 void supprimeUtilisateur(){
@@ -168,7 +168,7 @@ void supprimeUtilisateur(){
 	envoieRequeteFormatee(mapParameters);
 }
 
-/**
+/** (Florian)
  * Aiguille vers la bonne fonction suivant l'action souhaitée
  * 
  * @param action Le numéro de l'action souhaitée
@@ -211,7 +211,7 @@ void aiguillageAction(int action){
 	}
 }
 
-/**
+/** (Katia & Duncan)
  * Affiche différenntes chaines suivant le code de retour recu, peut aussi changer l'état de logged et admin
  * 
  * @param code Le code de retour
@@ -279,7 +279,7 @@ void aiguillageRetour(char* message, int* logged, int* admin){
 	}
 }
 
-/**
+/** (Katia & Duncan)
  * Affiche le menu du client avec les différentes actions possibles
  * 
  * @param admin Indique si l'utilisateur est un admin et donc s'il a accés aux actions réservés aux admins
@@ -353,7 +353,7 @@ int afficheMenu(int admin){
 	return -1;
 }
 
-/**
+/** (Florian)
  * Main du client
  **/
 int main() {    
