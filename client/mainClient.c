@@ -260,10 +260,10 @@ void aiguillageRetour(char* message, int* logged, int* admin){
 		printf("\n	Vous n'avez pas bien renseigner les champs nécessaire a cette action.\n");
 		break;
 	case CODE_USER_ANNUAIRE_EXISTANT:
-		printf("\n	La ressouce que vous souhaitez ajouter existe déjà.\n");
+		printf("\n	La ressource que vous souhaitez ajouter existe déjà.\n");
 		break;
 	case CODE_USER_ANNUAIRE_INTROUVABLE:
-		printf("\n	La ressouce a laquelle vous souhaitez accéder est introuvable.\n");
+		printf("\n	La ressource a laquelle vous souhaitez accéder est introuvable.\n");
 		break;
 	case CODE_CONSULTE_ANNUAIRE:
 		printf("\n	Voici les utilisateurs présents dans l'annuaire :\n");
